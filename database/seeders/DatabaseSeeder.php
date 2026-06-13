@@ -2,52 +2,92 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Ads;
+use App\Models\Category;
+use App\Models\Post;
+use App\Models\Reels;
 use App\Models\User;
-use App\Models\Categories;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
+    public function run()
     {
-        // \App\Models\User::factory(10)->create();
-
-        //// todo add one customer ////
-        $defCustomer = User::factory()->create([  
-            'name' => 'Customer',
-            'username' => 'Customer Login',
-            'gmail' => 'customer@gmail.com',
-            'password' => Hash::make('customer'), 
+        $this->call([
+            PermissionTableSeeder::class,
+            RoleTableSeeder::class,
+            UserTableSeeder::class,
         ]);
 
-        //// todo add Categories ////
-        $cat1 = Categories::factory()->create([  
-            'name' => 'Cat Work',
-            'photo' => '/api/cat/imagecat/work.png',
-        ]);
+        User::factory(40)->create();
 
-        //// todo add Categories 2 ////
-        $cat2 = Categories::factory()->create([  
-            'name' => 'Cat personal',
-            'photo' => '/api/cat/imagecat/personal.png',
-        ]);
+        // ================= POSTS =================
+        Post::factory(100)->create()->each(function ($post) {
 
-        //// todo add Categories 3 ////
-        $cat3 = Categories::factory()->create([  
-            'name' => 'Cat urgent',
-            'photo' => '/api/cat/imagecat/urgent.png',
-        ]);
+            $image = storage_path('app/public/images/back2.png');
+            $video = storage_path('app/public/videos/video1.mp4');
 
-        //// todo add users  ////
-        $customer = User::factory()
-        ->count(19)
-        ->create();
+            if (file_exists($image)) {
+                $post->addMedia($image)
+                    ->preservingOriginal()
+                    ->toMediaCollection('image');
+            }
 
+            if (file_exists($video)) {
+                $post->addMedia($video)
+                    ->preservingOriginal()
+                    ->toMediaCollection('video');
+            }
+        });
+
+        // ================= REELS =================
+        Reels::factory(60)->create()->each(function ($reel) {
+
+            $video = storage_path('app/public/videos/video1.mp4');
+            $thumb = storage_path('app/public/images/back2.png');
+
+            if (file_exists($video)) {
+                $reel->addMedia($video)
+                    ->preservingOriginal()
+                    ->toMediaCollection('video');
+            }
+
+            if (file_exists($thumb)) {
+                $reel->addMedia($thumb)
+                    ->preservingOriginal()
+                    ->toMediaCollection('thumbnail');
+            }
+        });
+
+        // ================= ADS =================
+        Ads::factory(25)->create()->each(function ($ad) {
+
+            $image = storage_path('app/public/images/back2.png');
+            $video = storage_path('app/public/videos/video1.mp4');
+
+            if (file_exists($image)) {
+                $ad->addMedia($image)
+                    ->preservingOriginal()
+                    ->toMediaCollection('image');
+            }
+
+            if (file_exists($video)) {
+                $ad->addMedia($video)
+                    ->preservingOriginal()
+                    ->toMediaCollection('video');
+            }
+        });
+
+        // ================= CATEGORIES =================
+        $categories = [
+            ['name_en' => 'Watches', 'name_ar' => 'ساعات'],
+            ['name_en' => 'Cars', 'name_ar' => 'سيارات'],
+            ['name_en' => 'Mechanics', 'name_ar' => 'لوحات فنية'],
+            ['name_en' => 'Jewelry', 'name_ar' => 'خردة'],
+            
+        ];
+        foreach ($categories as $category) {
+            Category::factory()->create(['name_en' => $category['name_en'], 'name_ar' => $category['name_ar']]);
+        }
     }
 }

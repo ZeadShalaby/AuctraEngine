@@ -4,33 +4,43 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateUsersTable extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
+
         Schema::create('users', function (Blueprint $table) {
-            $table->id();// ! to start in value ->startingValue(1755) //
-            $table->string('name');
+            $table->id();
             $table->string('username')->unique();
-            $table->string('gmail')->nullable();
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('email')->unique();
+            $table->string('phone_number')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('user_type')->default('user');
             $table->string('password');
-            $table->string('gender')->nullable();
-            $table->bigInteger('phone')->unique()->nullable();
-            $table->index('phone');
-            $table->date('birthday')->nullable();
+            $table->string('status')->default('pending');
+            $table->boolean('notifications_enabled')->default(true);
+            $table->boolean('email_enabled')->default(true);
+            $table->boolean('ads_enabled')->default(false);
+            $table->boolean('auction_enabled')->default(false);
+            $table->rememberToken();
             $table->timestamps();
-            $table->string("avatar")->nullable();
         });
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('users');
     }
-};
+}

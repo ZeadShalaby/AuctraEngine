@@ -2,113 +2,181 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use Exception;
-use Validator;
-use Carbon\Carbon;
+use App\DataTables\UsersDataTable;
+use App\Helpers\AuthHelper;
+use App\Http\Requests\UserRequest;
 use App\Models\User;
-use App\Traits\ImageTrait;
+use App\Services\UserToggleService;
 use Illuminate\Http\Request;
-use App\Traits\ResponseTrait;
-use App\Traits\Requests\TestAuth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use App\Traits\validator\ValidatorTrait;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
-
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-   
-   use ResponseTrait , ValidatorTrait , TestAuth , ImageTrait;
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(UsersDataTable $dataTable)
+    {
+        $pageTitle = trans('global-message.list_form_title', ['form' => trans('users.title')]);
+        $auth_user = AuthHelper::authSession();
+        $assets = ['data-table'];
+        $headerAction = '<a href="' . route('users.create') . '" class="btn btn-sm btn-primary" role="button">Add User</a>';
+        return $dataTable->render('global.datatable', compact('pageTitle', 'auth_user', 'assets', 'headerAction'));
+    }
 
-   // todo Register to api natural user
-   public function register(Request $request){
-    // ! valditaion
-    $rules = $this->rulesRegist();    
-    $validator = $this->validate($request,$rules);
-    if($validator !== true){return $validator;}
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $roles = Role::where('status', 1)->get()->pluck('title', 'id');
 
-    // todo Register New Account //    
-    $customer = User::create([
-        'name' => $request->name,
-        'username' => $request->username,
-        'gmail' => $request ->gmail,
-        'password'  => Hash::make($request->password),
-        'birthday' => $request->birthday,
-        'gender' => $request->gender,
-        'phone' => $request->phone,
-        'avatar' => '/api/users/imageusers/user.png',
-        'email_verified_at' => Carbon::now() ,
-     ]);
-     if($customer){return $this->returnSuccessMessage("Create Account Successfully .");}
-     else{return $this->returnError('R001','Some Thing Wrong .');}
+        return view('users.form', compact('roles'));
+    }
 
-   }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(UserRequest $request)
+    {
+        $request['password'] = bcrypt($request->password);
 
+        $request['username'] = $request->username ?? stristr($request->email, "@", true) . rand(100, 1000);
 
-    // todo Login Users
-    public function login(Request $request){
-        try{
-        $infofield = $this->CheckField($request);
-        // ! valditaion
-        $rules = $this->rulesLogin($infofield['fields']);    
-        $validator = $this->validate($request,$rules);
-        if($validator !== true){return $validator;}
+        $user = User::create($request->all());
 
-        // todo login  $credentials = $request->only(['gmail','password']);
-        $token = Auth::guard('api')->attempt($infofield['credentials']);
-        if(!$token)
-        return $this->returnError('E001','information not valid.');
+        storeMediaFile($user, $request->profile_image, 'profile_image');
 
-        $users =  Auth::guard('api')->user();
-        $users -> token = $token;
-        // ! return tocken
-        return $this->returnData('Users',$users);
+        $user->assignRole('user');
+
+        // Save user Profile data...
+        $user->userProfile()->create($request->userProfile);
+
+        return redirect()->route('users.index')->withSuccess(__('message.msg_added', ['name' => __('users.store')]));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $data = User::with('userProfile', 'roles')->findOrFail($id);
+
+        $profileImage = getSingleMedia($data, 'profile_image');
+
+        return view('users.profile', compact('data', 'profileImage'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $data = User::with('userProfile', 'roles')->findOrFail($id);
+
+        $data['user_type'] = $data->roles->pluck('id')[0] ?? null;
+
+        $roles = Role::where('status', 1)->get()->pluck('title', 'id');
+
+        $profileImage = getSingleMedia($data, 'profile_image');
+
+        return view('users.form', compact('data', 'id', 'roles', 'profileImage'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(UserRequest $request, $id)
+    {
+        // dd($request->all());
+        $user = User::with('userProfile')->findOrFail($id);
+
+        $role = Role::find($request->user_role);
+        if (env('IS_DEMO')) {
+            if ($role->name === 'admin' && $user->user_type === 'admin') {
+                return redirect()->back()->with('error', 'Permission denied');
+            }
         }
-        catch(Exception $ex){
-            return $this->returnError($ex->getcode(),$ex->getMessage());
+        $user->assignRole($role->name);
+
+        $request['password'] = $request->password != '' ? bcrypt($request->password) : $user->password;
+
+        // User user data...
+        $user->fill($request->all())->update();
+
+        // Save user image...
+        if (isset($request->profile_image) && $request->profile_image != null) {
+            $user->clearMediaCollection('profile_image');
+            $user->addMediaFromRequest('profile_image')->toMediaCollection('profile_image');
         }
+
+        // user profile data....
+        $user->userProfile->fill($request->userProfile)->update();
+
+        if (auth()->check()) {
+            return redirect()->route('users.index')->withSuccess(__('message.msg_updated', ['name' => __('message.user')]));
+        }
+        return redirect()->back()->withSuccess(__('message.msg_updated', ['name' => 'My Profile']));
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $status = 'errors';
+        $message = __('global-message.delete_form', ['form' => __('users.title')]);
+
+        if ($user != '') {
+            $user->delete();
+            $status = 'success';
+            $message = __('global-message.delete_form', ['form' => __('users.title')]);
+        }
+
+        if (request()->ajax()) {
+            return response()->json(['status' => true, 'message' => $message, 'datatable_reload' => 'dataTable_wrapper']);
+        }
+
+        return redirect()->back()->with($status, $message);
 
     }
 
 
-    // todo return users image
-    public function imagesuser(Request $request){
-        if(isset($request->avatar)){
-          return $this->returnimageusers($request->avatar);}
-        else {return 'null';}
-    }
 
+    public function toggle(Request $request)
+    {
+        $user = User::findOrFail($request->id);
+        $key = $request->key; // "status" أو "notifications_enabled" أو "email_enabled"
 
-   // todo return users details
-   public function profile(Request $request){
-    $user = auth()->user();
-    return $this->returnData("user",$user);
-   } 
-
-
-    // todo Logout Users
-    public function logout(Request $request){
-
-        $token = $request->auth_token; 
-        if(isset($token)){
-            try{
-            // todo logout
-            JWTAuth::setToken($token)->invalidate();
-            }catch(TokenInvalidException $e){
-                return $this->returnError("T003","Some Thing Went Wrongs");
-            }
-            catch(TokenExpiredException $e){
-                return $this->returnError("T002","Some Thing Went Wrongs");
-            }
-            return $this->returnSuccessMessage('Logged Out Successfully');
+        $service = new UserToggleService($user);
+        $result = $service->toggle($key);
+        
+        if (!$result) {
+            return response()->json(['error' => 'Invalid key'], 400);
         }
-        else{
-            return $this->returnError("T001","Some Thing Went Wrongs .");
-        }
+        return response()->json($result);
     }
 
 }

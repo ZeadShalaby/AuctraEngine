@@ -2,46 +2,54 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\Str;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
     /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = User::class;
+
+    /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
+     * @return array
      */
-    public function definition(): array
+    public function definition()
     {
+        $fname = $this->faker->firstName;
+        $lname = $this->faker->lastName;
+        $fullname = Str::lower($fname).Str::lower($lname);
+        $status = $this->faker->numberBetween(0,2);
+        switch ($status) {
+            case 1:
+                $status = 'active';
+                break;
+
+            case 2:
+                $status = 'inactive';
+                break;
+
+                default:
+                $status = 'pending';
+                break;
+        }
         return [
-            'name' => fake()->name(),
-            'username' => fake()->name(),
-            'gmail'=>fake()->unique()->safeEmail(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'phone'=>fake()->numberBetween($min = 123456789, $max = 98561237894),
-            'gender' =>fake()->randomElement(['male', 'female']),
-            'birthday' => fake()->dateTimeBetween($startDate = '-30 years', $endDate = 'now', $timezone = null),
-            'avatar'=>fake()->imageUrl($width=400, $height=400),
+            'username' => $fullname,
+            'first_name' => $fname,
+            'last_name' => $lname,
+            'phone_number' => $this->faker->phoneNumber,
+            'email' => $this->faker->unique()->safeEmail,
+            'email_verified_at' => now(),
+            'password' => 'password',
+            'phone_number' => $this->faker->phoneNumber,
+            'user_type' => 'user',
+            'status' => $status
         ];
-    }
-
-
-
-    
-
-   /**
-     * Indicate that the model's email address should be unverified.
-     *
-     * @return $this
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

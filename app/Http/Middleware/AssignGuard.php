@@ -3,41 +3,52 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use JWTAuth;
 use Illuminate\Http\Request;
-use App\Traits\ResponseTrait;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpFoundation\Response;
-use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AssignGuard
 {
-    use ResponseTrait;
-     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next,$guard = null): Response
+    public function handle(Request $request, Closure $next, $guard = null): Response
     {
-        if($guard != null){
-            auth()->shouldUse($guard); //?shoud you user guard / table
-            $token = $request->auth_token;
-           // $token = $request->header('auth-token');
-            $request->headers->set('auth_token', (string) $token, true);
-            $request->headers->set('Authorization', 'Bearer '.$token, true);
-            try {
-              //$user = $this->auth->authenticate($request);  //check authenticted user
-                $user = JWTAuth::parseToken()->authenticate();
-            } catch (TokenExpiredException $e) {
-                return  $this -> returnError('401','Unauthenticated user');
-            } catch (JWTException $e) {
+        if ($guard) {
+            auth()->shouldUse($guard);
 
-                return  $this ->returnError('', 'token_invalid'.$e->getMessage());
+            $token = $request->bearerToken();
+
+            if (!$token) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [
+                        'en' => 'Token not provided',
+                        'ar' => 'التوكن غير موجود'
+                    ]
+                ], 401);
             }
 
+            try {
+                JWTAuth::setToken($token)->authenticate();
+            } catch (TokenExpiredException $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [
+                        'en' => 'Token expired',
+                        'ar' => 'انتهت صلاحية التوكن'
+                    ]
+                ], 401);
+            } catch (JWTException $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => [
+                        'en' => 'Invalid token',
+                        'ar' => 'توكن غير صالح'
+                    ]
+                ], 401);
+            }
         }
+
         return $next($request);
     }
 }

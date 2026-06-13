@@ -12,19 +12,10 @@
 <a href="https://github.com/iqonicdesignofficial/hope-ui-design-system/blob/main/LICENSE" target="__blank"><img src="https://img.shields.io/github/license/iqonicdesignofficial/hope-ui-design-system" /> </a>
 <a href="https://twitter.com/iqonicdesign" target="__blank"><img src="https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fiqonicdesign" /></a>
 </p>
-<h3 align="center">Free Open Source Bootstrap 5 Design System.</h3>
+<h3 align="center">Auctra System</h3>
 <p align="center">
-  <a href="https://templates.iqonic.design/hope-ui/html/dist" title="Hope UI"><strong>Live Demo</strong></a>
+  <a href="https://auctra.taxista-go.com/" title="Hope UI"><strong>Live Demo</strong></a>
   <span>|</span>
-  <a href="https://www.figma.com/community/file/1009728454881721702" title="Hope UI"><strong>Figma UI Kit</strong></a>
-  <span>|</span>
-  <a href="https://iqonic.design/product/admin-templates/hope-ui-admin-free-open-source-bootstrap-admin-template/?utm_source=github&utm_medium=github-description&utm_campaign=open_source_github" title="Hope UI"><strong>HTML Dashboard</strong></a>
-  <span>|</span>
-  <a href="https://iqonic.design/product/admin-templates/hope-ui-open-source-vue-js-admin-template/?utm_source=github&utm_medium=github-description&utm_campaign=open_source_github" title="Hope UI"><strong>Vue JS Dashboard</strong></a>
-  <span>|</span>
-  <a href="https://iqonic.design/product/admin-templates/hope-ui-free-open-source-react-admin-template/?utm_source=github&utm_medium=github-description&utm_campaign=open_source_github" title="Hope UI"><strong>React JS Dashboard</strong></a>
-  <span>|</span>
-  <a href="https://iqonic.design/product/admin-templates/hope-ui-free-open-source-laravel-admin-panel/?utm_source=github&utm_medium=github-description&utm_campaign=open_source_github" title="Hope UI"><strong>Laravel Dashboard</strong></a>
 </p>
 
 ------------

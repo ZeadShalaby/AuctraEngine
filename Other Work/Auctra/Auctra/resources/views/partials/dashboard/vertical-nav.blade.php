@@ -1,0 +1,953 @@
+<ul class="navbar-nav iq-main-menu" id="sidebar">
+    {{-- todo ================= Home ================= --}}
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Home</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+    {{-- ? ================= Dashboard ================= --}}
+    <li class="nav-item">
+        <a class="nav-link {{ activeRoute(route('dashboard')) }}" aria-current="page" href="{{ route('dashboard') }}">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.4"
+                        d="M16.0756 2H19.4616C20.8639 2 22.0001 3.14585 22.0001 4.55996V7.97452C22.0001 9.38864 20.8639 10.5345 19.4616 10.5345H16.0756C14.6734 10.5345 13.5371 9.38864 13.5371 7.97452V4.55996C13.5371 3.14585 14.6734 2 16.0756 2Z"
+                        fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M4.53852 2H7.92449C9.32676 2 10.463 3.14585 10.463 4.55996V7.97452C10.463 9.38864 9.32676 10.5345 7.92449 10.5345H4.53852C3.13626 10.5345 2 9.38864 2 7.97452V4.55996C2 3.14585 3.13626 2 4.53852 2ZM4.53852 13.4655H7.92449C9.32676 13.4655 10.463 14.6114 10.463 16.0255V19.44C10.463 20.8532 9.32676 22 7.92449 22H4.53852C3.13626 22 2 20.8532 2 19.44V16.0255C2 14.6114 3.13626 13.4655 4.53852 13.4655ZM19.4615 13.4655H16.0755C14.6732 13.4655 13.537 14.6114 13.537 16.0255V19.44C13.537 20.8532 14.6732 22 16.0755 22H19.4615C20.8637 22 22 20.8532 22 19.44V16.0255C22 14.6114 20.8637 13.4655 19.4615 13.4655Z"
+                        fill="currentColor"></path>
+                </svg>
+            </i>
+            <span class="item-name">Dashboard</span>
+        </a>
+    </li>
+    {{-- ? ================= ANALYTICS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-widget" role="button" aria-expanded="false"
+            aria-controls="sidebar-widget">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.4"
+                        d="M21.25 13.4764C20.429 13.4764 19.761 12.8145 19.761 12.001C19.761 11.1865 20.429 10.5246 21.25 10.5246C21.449 10.5246 21.64 10.4463 21.78 10.3076C21.921 10.1679 22 9.97864 22 9.78146L21.999 7.10415C21.999 4.84102 20.14 3 17.856 3H6.144C3.86 3 2.001 4.84102 2.001 7.10415L2 9.86766C2 10.0648 2.079 10.2541 2.22 10.3938C2.36 10.5325 2.551 10.6108 2.75 10.6108C3.599 10.6108 4.239 11.2083 4.239 12.001C4.239 12.8145 3.571 13.4764 2.75 13.4764C2.336 13.4764 2 13.8093 2 14.2195V16.8949C2 19.158 3.858 21 6.143 21H17.857C20.142 21 22 19.158 22 16.8949V14.2195C22 13.8093 21.664 13.4764 21.25 13.4764Z"
+                        fill="currentColor"></path>
+                    <path
+                        d="M15.4303 11.5887L14.2513 12.7367L14.5303 14.3597C14.5783 14.6407 14.4653 14.9177 14.2343 15.0837C14.0053 15.2517 13.7063 15.2727 13.4543 15.1387L11.9993 14.3737L10.5413 15.1397C10.4333 15.1967 10.3153 15.2267 10.1983 15.2267C10.0453 15.2267 9.89434 15.1787 9.76434 15.0847C9.53434 14.9177 9.42134 14.6407 9.46934 14.3597L9.74734 12.7367L8.56834 11.5887C8.36434 11.3907 8.29334 11.0997 8.38134 10.8287C8.47034 10.5587 8.70034 10.3667 8.98134 10.3267L10.6073 10.0897L11.3363 8.61268C11.4633 8.35868 11.7173 8.20068 11.9993 8.20068H12.0013C12.2843 8.20168 12.5383 8.35968 12.6633 8.61368L13.3923 10.0897L15.0213 10.3277C15.2993 10.3667 15.5293 10.5587 15.6173 10.8287C15.7063 11.0997 15.6353 11.3907 15.4303 11.5887Z"
+                        fill="currentColor"></path>
+                </svg>
+            </i>
+            <span class="item-name">Analytics</span>
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+        <ul class="sub-nav collapse" id="sidebar-widget" data-bs-parent="#sidebar">
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('widget.widgetbasic')) }}"
+                    href="{{ route('widget.widgetbasic') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> W </i>
+                    <span class="item-name">Analytics Basic</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('widget.widgetchart')) }}"
+                    href="{{ route('widget.widgetchart') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> W </i>
+                    <span class="item-name">Analytics Chart</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('widget.widgetcard')) }}"
+                    href="{{ route('widget.widgetcard') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> W </i>
+                    <span class="item-name">Analytics Card</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    {{-- ? ================= Categories ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-categories" role="button" aria-expanded="false"
+            aria-controls="sidebar-categories">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M4 4H10V10H4V4Z" fill="currentColor" />
+                    <path d="M14 4H20V10H14V4ZM4 14H10V20H4V14ZM14 14H20V20H14V14Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Categories</span>
+
+            <i class="right-icon">
+                <svg width="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-categories" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon"><svg width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8" />
+                        </svg></i>
+                    <i class="sidenav-mini-icon"> C </i>
+                    <span class="item-name">All Categories</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+    {{-- todo ================= Pages ================= --}}
+    <li>
+        <hr class="hr-horizontal">
+    </li>
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Pages</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+
+    {{-- ? ================= Users ================= --}}
+    <li class="nav-item">
+        <a class="nav-link " data-bs-toggle="collapse" href="#sidebar-user" role="button" aria-expanded="false"
+            aria-controls="sidebar-user">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M11.9488 14.54C8.49884 14.54 5.58789 15.1038 5.58789 17.2795C5.58789 19.4562 8.51765 20.0001 11.9488 20.0001C15.3988 20.0001 18.3098 19.4364 18.3098 17.2606C18.3098 15.084 15.38 14.54 11.9488 14.54Z"
+                        fill="currentColor"></path>
+                    <path opacity="0.4"
+                        d="M11.949 12.467C14.2851 12.467 16.1583 10.5831 16.1583 8.23351C16.1583 5.88306 14.2851 4 11.949 4C9.61293 4 7.73975 5.88306 7.73975 8.23351C7.73975 10.5831 9.61293 12.467 11.949 12.467Z"
+                        fill="currentColor"></path>
+                    <path opacity="0.4"
+                        d="M21.0881 9.21923C21.6925 6.84176 19.9205 4.70654 17.664 4.70654C17.4187 4.70654 17.1841 4.73356 16.9549 4.77949C16.9244 4.78669 16.8904 4.802 16.8725 4.82902C16.8519 4.86324 16.8671 4.90917 16.8895 4.93889C17.5673 5.89528 17.9568 7.0597 17.9568 8.30967C17.9568 9.50741 17.5996 10.6241 16.9728 11.5508C16.9083 11.6462 16.9656 11.775 17.0793 11.7948C17.2369 11.8227 17.3981 11.8371 17.5629 11.8416C19.2059 11.8849 20.6807 10.8213 21.0881 9.21923Z"
+                        fill="currentColor"></path>
+                    <path
+                        d="M22.8094 14.817C22.5086 14.1722 21.7824 13.73 20.6783 13.513C20.1572 13.3851 18.747 13.205 17.4352 13.2293C17.4155 13.232 17.4048 13.2455 17.403 13.2545C17.4003 13.2671 17.4057 13.2887 17.4316 13.3022C18.0378 13.6039 20.3811 14.916 20.0865 17.6834C20.074 17.8032 20.1698 17.9068 20.2888 17.8888C20.8655 17.8059 22.3492 17.4853 22.8094 16.4866C23.0637 15.9589 23.0637 15.3456 22.8094 14.817Z"
+                        fill="currentColor"></path>
+                    <path opacity="0.4"
+                        d="M7.04459 4.77973C6.81626 4.7329 6.58077 4.70679 6.33543 4.70679C4.07901 4.70679 2.30701 6.84201 2.9123 9.21947C3.31882 10.8216 4.79355 11.8851 6.43661 11.8419C6.60136 11.8374 6.76343 11.8221 6.92013 11.7951C7.03384 11.7753 7.09115 11.6465 7.02668 11.551C6.3999 10.6234 6.04263 9.50765 6.04263 8.30991C6.04263 7.05904 6.43303 5.89462 7.11085 4.93913C7.13234 4.90941 7.14845 4.86348 7.12696 4.82926C7.10906 4.80135 7.07593 4.78694 7.04459 4.77973Z"
+                        fill="currentColor"></path>
+                    <path
+                        d="M3.32156 13.5127C2.21752 13.7297 1.49225 14.1719 1.19139 14.8167C0.936203 15.3453 0.936203 15.9586 1.19139 16.4872C1.65163 17.4851 3.13531 17.8066 3.71195 17.8885C3.83104 17.9065 3.92595 17.8038 3.91342 17.6832C3.61883 14.9167 5.9621 13.6046 6.56918 13.3029C6.59425 13.2885 6.59962 13.2677 6.59694 13.2542C6.59515 13.2452 6.5853 13.2317 6.5656 13.2299C5.25294 13.2047 3.84358 13.3848 3.32156 13.5127Z"
+                        fill="currentColor"></path>
+                </svg>
+            </i>
+            <span class="item-name">Users</span>
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+        <ul class="sub-nav collapse" id="sidebar-user" data-bs-parent="#sidebar">
+            {{-- <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('users.show', 1)) }}" href="{{ route('users.show', 1) }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> U </i>
+                    <span class="item-name">User Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('users.create')) }}" href="{{ route('users.create') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> E </i>
+                    <span class="item-name">Edit User</span>
+                </a>
+            </li> --}}
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('users.index')) }}" href="{{ route('users.index') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> U </i>
+                    <span class="item-name">User List</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    {{-- ? ================= Auctions ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-auctions" role="button" aria-expanded="false"
+            aria-controls="sidebar-auctions">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M4 4H20V20H4V4Z" fill="currentColor" />
+                    <path d="M6 8H18V10H6V8ZM6 12H18V14H6V12Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Auctions</span>
+
+            <i class="right-icon">
+                <svg width="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-auctions" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon"><svg width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8" />
+                        </svg></i>
+                    <i class="sidenav-mini-icon"> A </i>
+                    <span class="item-name">All Auctions</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+    {{-- ? ================= Interests ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-interests" role="button"
+            aria-expanded="false" aria-controls="sidebar-interests">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4"
+                        d="M12 21S4 13.5 4 8.5C4 6 6 4 8.5 4C10 4 11.2 4.8 12 6C12.8 4.8 14 4 15.5 4C18 4 20 6 20 8.5C20 13.5 12 21 12 21Z"
+                        fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Interests</span>
+
+            <i class="right-icon">
+                <svg width="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-interests" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon"><svg width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8" />
+                        </svg></i>
+                    <i class="sidenav-mini-icon"> I </i>
+                    <span class="item-name">All Interests</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+
+    {{-- todo ================= Permissions ================= --}}
+    <li>
+        <hr class="hr-horizontal">
+    </li>
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Permissions</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+    {{-- ? ================= Admin ================= --}}
+    <li class="nav-item">
+        <a class="nav-link {{ activeRoute(route('role.permission.list')) }}"
+            href="{{ route('role.permission.list') }}" target="_blank">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M7.7688 8.71387H16.2312C18.5886 8.71387 20.5 10.5831 20.5 12.8885V17.8254C20.5 20.1308 18.5886 22 16.2312 22H7.7688C5.41136 22 3.5 20.1308 3.5 17.8254V12.8885C3.5 10.5831 5.41136 8.71387 7.7688 8.71387ZM11.9949 17.3295C12.4928 17.3295 12.8891 16.9419 12.8891 16.455V14.2489C12.8891 13.772 12.4928 13.3844 11.9949 13.3844C11.5072 13.3844 11.1109 13.772 11.1109 14.2489V16.455C11.1109 16.9419 11.5072 17.3295 11.9949 17.3295Z"
+                        fill="currentColor"></path>
+                    <path opacity="0.4"
+                        d="M17.523 7.39595V8.86667C17.1673 8.7673 16.7913 8.71761 16.4052 8.71761H15.7447V7.39595C15.7447 5.37868 14.0681 3.73903 12.0053 3.73903C9.94257 3.73903 8.26594 5.36874 8.25578 7.37608V8.71761H7.60545C7.20916 8.71761 6.83319 8.7673 6.47754 8.87661V7.39595C6.4877 4.41476 8.95692 2 11.985 2C15.0537 2 17.523 4.41476 17.523 7.39595Z"
+                        fill="currentColor"></path>
+                </svg>
+            </i>
+            <span class="item-name">Admin</span>
+        </a>
+    </li>
+
+
+    {{-- todo ================= Social ================= --}}
+    <li>
+        <hr class="hr-horizontal">
+    </li>
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Social</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+    {{-- ? ================= POSTS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-posts" role="button" aria-expanded="false"
+            aria-controls="sidebar-posts">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M4 4H20V20H4V4Z" fill="currentColor" />
+                    <path d="M7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H13V17H7V15Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Posts</span>
+
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-posts" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> A </i>
+                    <span class="item-name">All Posts</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> C </i>
+                    <span class="item-name">Create Post</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+    {{-- ? ================= REELS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-reels" role="button" aria-expanded="false"
+            aria-controls="sidebar-reels">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M3 6H21V18H3V6Z" fill="currentColor" />
+                    <path d="M8 9H16V11H8V9ZM8 13H13V15H8V13Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Reels</span>
+
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-reels" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> A </i>
+                    <span class="item-name">All Reels</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+    {{-- ? ================= ADS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-ads" role="button" aria-expanded="false"
+            aria-controls="sidebar-ads">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M4 4H20V20H4V4Z" fill="currentColor" />
+                    <path d="M7 8H17V10H7V8ZM7 12H15V14H7V12Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Ads</span>
+
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-ads" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> A </i>
+                    <span class="item-name">All Ads</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+    {{-- todo ================= ManagementsMoney ================= --}}
+    <li>
+        <hr class="hr-horizontal">
+    </li>
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Managements Money</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+    {{--? ================= Transactions ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-transactions">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M3 5H21V19H3V5Z" fill="currentColor" />
+                    <path d="M7 9H17V11H7V9ZM7 13H15V15H7V13Z" fill="currentColor" />
+                </svg>
+            </i>
+            <span class="item-name">Transactions</span>
+            <i class="right-icon">
+                <svg width="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-transactions" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> T </i>
+                    <span class="item-name">All Transactions</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> T </i>
+                    <span class="item-name">History</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+    {{--? ================= Wallet ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-wallet" role="button" aria-expanded="false"
+            aria-controls="sidebar-wallet">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M3 5H21V19H3V5Z" fill="currentColor" />
+                    <path d="M7 9H17V11H7V9ZM7 13H15V15H7V13Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Wallet</span>
+
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-wallet" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> A </i>
+                    <span class="item-name">All Wallets</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> H </i>
+                    <span class="item-name">History</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+    </li>
+
+    {{-- todo ================= Settings ================= --}}
+    <li>
+        <hr class="hr-horizontal">
+    </li>
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Settings</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+    {{-- ? ================= REPORTS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-reports" role="button" aria-expanded="false"
+            aria-controls="sidebar-reports">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M4 4H20V20H4V4Z" fill="currentColor" />
+                    <path d="M7 14H9V18H7V14ZM11 10H13V18H11V10ZM15 6H17V18H15V6Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Reports</span>
+
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-reports" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> R </i>
+                    <span class="item-name">All Reports</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> S </i>
+                    <span class="item-name">Statistics Reports</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+    {{-- ? ================= NOTIFICATIONS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-notifications" role="button"
+            aria-expanded="false" aria-controls="sidebar-notifications">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22Z"
+                        fill="currentColor" />
+                    <path
+                        d="M18 16V11C18 7.9 16.3 5.2 13.5 4.3V4C13.5 3.2 12.8 2.5 12 2.5C11.2 2.5 10.5 3.2 10.5 4V4.3C7.7 5.2 6 7.9 6 11V16L4 18V19H20V18L18 16Z"
+                        fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Notifications</span>
+
+            <i class="right-icon">
+                <svg width="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-notifications" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon"><svg width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8" />
+                        </svg></i>
+                    <i class="sidenav-mini-icon"> N </i>
+                    <span class="item-name">All Notifications</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+    {{-- ? ================= SETTINGS ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-form" role="button" aria-expanded="false"
+            aria-controls="sidebar-form">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.4"
+                        d="M16.191 2H7.81C4.77 2 3 3.78 3 6.83V17.16C3 20.26 4.77 22 7.81 22H16.191C19.28 22 21 20.26 21 17.16V6.83C21 3.78 19.28 2 16.191 2Z"
+                        fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M8.07996 6.6499V6.6599C7.64896 6.6599 7.29996 7.0099 7.29996 7.4399C7.29996 7.8699 7.64896 8.2199 8.07996 8.2199H11.069C11.5 8.2199 11.85 7.8699 11.85 7.4289C11.85 6.9999 11.5 6.6499 11.069 6.6499H8.07996ZM15.92 12.7399H8.07996C7.64896 12.7399 7.29996 12.3899 7.29996 11.9599C7.29996 11.5299 7.64896 11.1789 8.07996 11.1789H15.92C16.35 11.1789 16.7 11.5299 16.7 11.9599C16.7 12.3899 16.35 12.7399 15.92 12.7399ZM15.92 17.3099H8.07996C7.77996 17.3499 7.48996 17.1999 7.32996 16.9499C7.16996 16.6899 7.16996 16.3599 7.32996 16.1099C7.48996 15.8499 7.77996 15.7099 8.07996 15.7399H15.92C16.319 15.7799 16.62 16.1199 16.62 16.5299C16.62 16.9289 16.319 17.2699 15.92 17.3099Z"
+                        fill="currentColor"></path>
+                </svg>
+            </i>
+            <span class="item-name">Setting</span>
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+        <ul class="sub-nav collapse" id="sidebar-form" data-bs-parent="#sidebar">
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('settings.element')) }}"
+                    href="{{ route('settings.element') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> E </i>
+                    <span class="item-name">Elements</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('settings.wizard')) }}"
+                    href="{{ route('settings.wizard') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> W </i>
+                    <span class="item-name">Wizard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('settings.validation')) }}"
+                    href="{{ route('settings.validation') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> V </i>
+                    <span class="item-name">Validation</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    {{-- ? ================= CACHE ================= --}}
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-cache" role="button" aria-expanded="false"
+            aria-controls="sidebar-cache">
+
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none">
+                    <path opacity="0.4" d="M4 7H20V21H4V7Z" fill="currentColor" />
+                    <path d="M7 3H17V7H7V3Z" fill="currentColor" />
+                    <path d="M9 11H15V13H9V11ZM9 15H15V17H9V15Z" fill="currentColor" />
+                </svg>
+            </i>
+
+            <span class="item-name">Cache</span>
+
+            <i class="right-icon">
+                <svg width="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+        <ul class="sub-nav collapse" id="sidebar-cache" data-bs-parent="#sidebar">
+
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+
+                    <i class="icon">
+                        <svg width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> C </i>
+                    <span class="item-name">Cache Info</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="#" onclick="clearCache()">
+
+                    <i class="icon">
+                        <svg width="10" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                    </i>
+
+                    <i class="sidenav-mini-icon"> X </i>
+                    <span class="item-name">Clear Cache</span>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+
+    {{-- todo ================= Elements ================= --}}
+    <li>
+        <hr class="hr-horizontal">
+    </li>
+    <li class="nav-item static-item">
+        <a class="nav-link static-item disabled" href="#" tabindex="-1">
+            <span class="default-icon">Elements</span>
+            <span class="mini-icon">-</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-maps" role="button" aria-expanded="false"
+            aria-controls="sidebar-maps">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M8.53162 2.93677C10.7165 1.66727 13.402 1.68946 15.5664 2.99489C17.7095 4.32691 19.012 6.70418 18.9998 9.26144C18.95 11.8019 17.5533 14.19 15.8075 16.0361C14.7998 17.1064 13.6726 18.0528 12.4488 18.856C12.3228 18.9289 12.1848 18.9777 12.0415 19C11.9036 18.9941 11.7693 18.9534 11.6508 18.8814C9.78243 17.6746 8.14334 16.134 6.81233 14.334C5.69859 12.8314 5.06584 11.016 5 9.13442C4.99856 6.57225 6.34677 4.20627 8.53162 2.93677ZM9.79416 10.1948C10.1617 11.1008 11.0292 11.6918 11.9916 11.6918C12.6221 11.6964 13.2282 11.4438 13.6748 10.9905C14.1214 10.5371 14.3715 9.92064 14.3692 9.27838C14.3726 8.29804 13.7955 7.41231 12.9073 7.03477C12.0191 6.65723 10.995 6.86235 10.3133 7.55435C9.63159 8.24635 9.42664 9.28872 9.79416 10.1948Z"
+                        fill="currentColor"></path>
+                    <ellipse opacity="0.4" cx="12" cy="21" rx="5" ry="1"
+                        fill="currentColor"></ellipse>
+                </svg>
+            </i>
+            <span class="item-name">Maps</span>
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+        <ul class="sub-nav collapse" id="sidebar-maps" data-bs-parent="#sidebar">
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('maps.google')) }}" href="{{ route('maps.google') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> G </i>
+                    <span class="item-name">Google</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('maps.vector')) }}" href="{{ route('maps.vector') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> V </i>
+                    <span class="item-name">Vector</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-table" role="button" aria-expanded="false"
+            aria-controls="sidebar-table">
+            <i class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M2 5C2 4.44772 2.44772 4 3 4H8.66667H21C21.5523 4 22 4.44772 22 5V8H15.3333H8.66667H2V5Z"
+                        fill="currentColor" stroke="white" />
+                    <path d="M2 8H6H14H22V11V19C22 19.5523 21.5523 20 21 20H14H6H3C2.44772 20 2 19.5523 2 19V11V8Z"
+                        fill="currentColor" fill-opacity="0.4" />
+                    <path
+                        d="M6 8H2V11M6 8V20M6 8H14M6 20H3C2.44772 20 2 19.5523 2 19V11M6 20H14M14 8H22V11M14 8V20M14 20H21C21.5523 20 22 19.5523 22 19V11M2 11H22M2 14H22M2 17H22M10 8V20M18 8V20"
+                        stroke="white" />
+                </svg>
+            </i>
+            <span class="item-name">Table</span>
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+        <ul class="sub-nav collapse" id="sidebar-table" data-bs-parent="#sidebar">
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('table.bootstraptable')) }}"
+                    href="{{ route('table.bootstraptable') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> B </i>
+                    <span class="item-name">Bootstrap Table</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ activeRoute(route('table.datatable')) }}"
+                    href="{{ route('table.datatable') }}">
+                    <i class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+                            </g>
+                        </svg>
+                    </i>
+                    <i class="sidenav-mini-icon"> D </i>
+                    <span class="item-name">Datatable</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <li class="nav-item mb-5">
+        <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-icons" role="button" aria-expanded="false"
+            aria-controls="sidebar-icons">
+            <i class="icon">
+                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.4"
+                        d="M16.34 1.99976H7.67C4.28 1.99976 2 4.37976 2 7.91976V16.0898C2 19.6198 4.28 21.9998 7.67 21.9998H16.34C19.73 21.9998 22 19.6198 22 16.0898V7.91976C22 4.37976 19.73 1.99976 16.34 1.99976Z"
+                        fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M11.1246 8.18921C11.1246 8.67121 11.5156 9.06421 11.9946 9.06421C12.4876 9.06421 12.8796 8.67121 12.8796 8.18921C12.8796 7.70721 12.4876 7.31421 12.0046 7.31421C11.5196 7.31421 11.1246 7.70721 11.1246 8.18921ZM12.8696 11.362C12.8696 10.88 12.4766 10.487 11.9946 10.487C11.5126 10.487 11.1196 10.88 11.1196 11.362V15.782C11.1196 16.264 11.5126 16.657 11.9946 16.657C12.4766 16.657 12.8696 16.264 12.8696 15.782V11.362Z"
+                        fill="currentColor"></path>
+                </svg>
+            </i>
+            <span class="item-name">Icons</span>
+            <i class="right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </i>
+        </a>
+
+    </li>
+</ul>

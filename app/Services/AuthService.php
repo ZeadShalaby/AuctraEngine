@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Http\Resources\UserResource;
 use App\Mail\OtpMail;
+use App\Models\User;
 use App\Repositories\Eloquent\AuthRepository;
 use App\Repositories\Interfaces\AuthRepositoryInterface;
 use Exception;
@@ -14,7 +16,9 @@ use Illuminate\Support\Facades\Mail;
 class AuthService
 {
 
-    public function __construct(protected AuthRepositoryInterface $authRepository){}
+    public function __construct(protected AuthRepositoryInterface $authRepository)
+    {
+    }
 
     private function creatSendOtp($user)
     {
@@ -101,7 +105,7 @@ class AuthService
         $profile = DB::transaction(function () use ($user, $data) {
             return $this->authRepository->completeProfile($user, $data);
         });
-        return successResponse( __('pages.success.auth.profile_completed'),['user' => $user->fresh()],200);
+        return successResponse(__('pages.success.auth.profile_completed'), ['user' => $user->fresh()], 200);
     }
 
     public function login(array $credentials)
@@ -282,6 +286,14 @@ class AuthService
         return successResponse(__('pages.success.auth.account_deleted'), [], 200);
     }
 
+    public function findUser(int $id)
+    {
+        $user = User::query()
+            ->withCount(['reviews', 'soldItems'])
+            ->withAvg('reviews', 'rating')
+            ->findOrFail($id);
+        return successResponse(__('pages.success.auth.user_retrieved'), UserResource::make($user), 200);
+    }
     public function logout()
     {
         Auth::guard('api')->logout();

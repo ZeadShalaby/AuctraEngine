@@ -38,7 +38,7 @@
         <p style="margin-top:20px;">
             {{ str_replace(
                 ':name',
-                $user->first_name . ' ' . $user->last_name,
+                $user->full_name,
                 setting('email.otp.message')
                     ? t(setting('email.otp.message'), $lang)
                     : __('mail.otp_message')
@@ -64,12 +64,12 @@
         <p>
             {{ __('mail.need_help') }}
             <a href="mailto:{{ setting('email.otp.footer.help_email') ?? 'support@example.com' }}">
-                {{ setting('email.otp.footer.help_email') ?? 'support@example.com' }}
+                {{ setting('email.otp.footer.help_email') ?? env('MAIL_FROM_ADDRESS')}}
             </a>
         </p>
 
         <p>
-            {{ setting('email.otp.footer.address') ?? 'Your company address' }}
+            {{ setting('email.otp.footer.address') ?? __('mail.address') }}
         </p>
 
         <div style="margin-top:15px;">

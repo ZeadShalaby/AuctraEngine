@@ -9,17 +9,6 @@ class PostFactory extends Factory
 {
     public function definition(): array
     {
-        $images = [
-            'images/back1.png',
-            'images/back2.png',
-        ];
-
-        $videos = [
-            'videos/video1.mp4',
-        ];
-
-        $hasImage = fake()->boolean(70);
-
         return [
 
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),

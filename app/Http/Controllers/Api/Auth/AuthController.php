@@ -59,6 +59,11 @@ class AuthController extends Controller
         return $this->authService->me();
     }
 
+    public function userProfile(int $id)
+    {
+        return $this->authService->findUser($id);
+    }
+
     public function changePassword(ChangePasswordRequest $request)
     {
         return $this->authService->changePassword($request->validated());
@@ -83,4 +88,9 @@ class AuthController extends Controller
     {
         return $this->authService->logout();
     }
+
+    // public function refreshToken()
+    // {
+    //     return $this->authService->refreshToken();
+    // }
 }

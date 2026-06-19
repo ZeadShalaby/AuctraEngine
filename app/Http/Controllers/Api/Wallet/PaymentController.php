@@ -30,12 +30,6 @@ class PaymentController extends Controller
         ]);
     }
 
-    // public function showPaymentPage($ref)
-    // {
-    //     $payment = Payment::where('merchant_ref', $ref)->firstOrFail();
-
-    //     return view('payment.pay', compact('payment'));
-    // }
 
     public function showPaymentPage($ref)
     {
@@ -45,21 +39,12 @@ class PaymentController extends Controller
         $tid = env('MOAMALAT_TID');
         $secret = env('MOAMALAT_SECRET');
 
-        $amountInDirhams = $payment->amount * 1000; // تحويل للدينار إلى درهم
+        $amountInDirhams = $payment->amount * 1000; 
 
-        // التوقيت بـ 12 خانة فقط بالملي طبقاً للتوثيق: YYYYMMDDHHMM
         $dateTime = date('YmdHi');
 
-        // --- تجربة الطريقة الأولى: استخدام السيكرت كمفتاح نصي مباشر (Plain Text) وهو الأغلب في حسابات الـ Live الحركية
         $decryptedSecret = $secret;
-
-        // أو لو البنك قايلك إنه Base64 جرب السطر اللي تحته:
-        // $decryptedSecret = base64_decode($secret);
-
-        // بناء السلسلة الأبجدية الصارمة بالحرف من الدوكيومنتيشن الجديدة:
         $stringToHash = "Amount=$amountInDirhams&DateTimeLocalTrxn=$dateTime&MerchantId=$mid&MerchantReference=$ref&TerminalId=$tid";
-
-        // إنتاج الـ Hash وتحويله لحروف كبيرة
         $secureHash = strtoupper(hash_hmac('sha256', $stringToHash, $decryptedSecret));
 
         return view('payment.pay', [
@@ -81,7 +66,6 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Order Not Found'], 404);
         }
 
-        // نجاح الدفع
         if (($request->Status ?? '') === 'Approved') {
 
             $payment->update([

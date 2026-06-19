@@ -2,50 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\Ads;
-use App\Models\Auction;
-use App\Models\Category;
-use App\Models\Comment;
-use App\Models\Complaint;
-use App\Models\Favourite;
-use App\Models\Interest;
-use App\Models\Post;
-use App\Models\ReelInterest;
-use App\Models\Reels;
-use App\Models\reports\Report;
-use App\Models\Review;
-use App\Models\Setting;
-use App\Models\User;
-use App\Repositories\Eloquent\AdsRepository;
-use App\Repositories\Eloquent\AuthRepository;
-use App\Repositories\Eloquent\CategoryRepository;
-use App\Repositories\Eloquent\CommentRepository;
-use App\Repositories\Eloquent\ComplaintRepository;
-use App\Repositories\Eloquent\FavouritesRepository;
-use App\Repositories\Eloquent\InterestsRepository;
-use App\Repositories\Eloquent\LikesRepository;
-use App\Repositories\Eloquent\NotificationsRepository;
-use App\Repositories\Eloquent\PostsRepository;
-use App\Repositories\Eloquent\ReelsRepository;
-use App\Repositories\Eloquent\ReportRepository;
-use App\Repositories\Eloquent\ReviewsRepository;
-use App\Repositories\Eloquent\SharesRepository;
-use App\Repositories\Interfaces\AdsRepositoryInterface;
-use App\Repositories\Interfaces\AuthRepositoryInterface;
-use App\Repositories\Interfaces\CategoryRepositoryInterface;
-use App\Repositories\Interfaces\CommentRepositoryInterface;
-use App\Repositories\Interfaces\ComplaintRepositoryInterface;
-use App\Repositories\Interfaces\FavouritesRepositoryInterface;
-use App\Repositories\Interfaces\InterestsRepositoryInterface;
-use App\Repositories\Interfaces\LikesRepositoryInterface;
-use App\Repositories\Interfaces\NotificationsRepositoryInterface;
-use App\Repositories\Interfaces\PostsRepositoryInterface;
-use App\Repositories\Interfaces\ReelsRepositoryInterface;
-use App\Repositories\Interfaces\ReportRepositoryInterface;
-use App\Repositories\Interfaces\ReviewsRepositoryInterface;
-use App\Repositories\Interfaces\SharesRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -57,20 +16,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
-        $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
-        $this->app->bind(InterestsRepositoryInterface::class, InterestsRepository::class);
-        $this->app->bind(ReportRepositoryInterface::class, ReportRepository::class);
-        $this->app->bind(ComplaintRepositoryInterface::class, ComplaintRepository::class);
-        $this->app->bind(AdsRepositoryInterface::class, AdsRepository::class);
-        $this->app->bind(NotificationsRepositoryInterface::class, NotificationsRepository::class);
-        $this->app->bind(PostsRepositoryInterface::class, PostsRepository::class);
-        $this->app->bind(ReelsRepositoryInterface::class, ReelsRepository::class);
-        $this->app->bind(CommentRepositoryInterface::class, CommentRepository::class);
-        $this->app->bind(LikesRepositoryInterface::class, LikesRepository::class);
-        $this->app->bind(FavouritesRepositoryInterface::class, FavouritesRepository::class);
-        $this->app->bind(SharesRepositoryInterface::class, SharesRepository::class);
-        $this->app->bind(ReviewsRepositoryInterface::class, ReviewsRepository::class);
+        
+
+    $interfacesPath = app_path('Repositories/Interfaces');
+    
+    if (File::exists($interfacesPath)) {
+        $files = File::files($interfacesPath);
+        
+        foreach ($files as $file) {
+            $interfaceName = $file->getFilenameWithoutExtension(); 
+            
+            $repositoryName = str_replace('Interface', '', $interfaceName); 
+            
+            $interfaceNamespace = "App\\Repositories\\Interfaces\\{$interfaceName}";
+            $repositoryNamespace = "App\\Repositories\\Eloquent\\{$repositoryName}";
+            
+            $this->app->bind($interfaceNamespace, $repositoryNamespace);
+        }
+    }
     }
 
     /**
@@ -82,21 +45,24 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         //
-        Relation::morphMap([
-            'setting' => Setting::class,
-            'user' => User::class,
-            'post' => Post::class,
-            'reel' => Reels::class,
-            'reel_interest' => ReelInterest::class,
-            'interest' => Interest::class,
-            'ads' => Ads::class,
-            'category' => Category::class,
-            'Auction' => Auction::class,
-            'report' => Report::class,
-            'review' => Review::class,
-            'comment' => Comment::class,
-            'complaint' => Complaint::class,
-            'favourite' => Favourite::class
+       Relation::morphMap([
+            'user'          => \App\Models\User::class,
+            'post'          => \App\Models\Post::class,
+            'reel'          => \App\Models\Reels::class,
+            'ads'           => \App\Models\Ads::class,  
+            'auction'       => \App\Models\Auction::class,
+            'auction_term'  => \App\Models\AuctionTerm::class,
+            'category'      => \App\Models\Category::class,
+            'comment'       => \App\Models\Comment::class,
+            'complaint'     => \App\Models\Complaint::class,
+            'favourite'     => \App\Models\Favourite::class,
+            'interest'      => \App\Models\Interest::class,
+            'reel_interest' => \App\Models\ReelInterest::class,
+            'review'        => \App\Models\Review::class,
+            'setting'       => \App\Models\Setting::class,
+            'report'        => \App\Models\reports\Report::class, 
+            'payment'       => \App\Models\Wallet\Payment::class,
+            'transaction'   => \App\Models\Wallet\Transaction::class,
         ]);
     }
 }

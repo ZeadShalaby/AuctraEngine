@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\Reports\ReportsController;
-use App\Http\Controllers\Api\Share\SharesController;
+use App\Http\Controllers\Api\Ads\AdsController;
+use App\Http\Controllers\Api\Ads\AdsPrices\AdPriceController;
 use App\Http\Controllers\Api\Auction\AuctionController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Categories\CategoriesController;
+use App\Http\Controllers\Api\Categories\SubCategories\SubCategoriesController;
 use App\Http\Controllers\Api\Comments\CommentsController;
 use App\Http\Controllers\Api\Complaints\ComplaintsController;
 use App\Http\Controllers\Api\Favourites\FavouritesController;
@@ -13,8 +14,11 @@ use App\Http\Controllers\Api\Likes\LikesController;
 use App\Http\Controllers\Api\Notifications\NotificationsController;
 use App\Http\Controllers\Api\Posts\PostController;
 use App\Http\Controllers\Api\Reels\ReelsController;
+use App\Http\Controllers\Api\Reports\ReportsController;
 use App\Http\Controllers\Api\Reviews\ReviewsController;
+use App\Http\Controllers\Api\Share\SharesController;
 use App\Http\Controllers\Api\Wallet\PaymentController;
+use App\Http\Controllers\Api\Wallet\TransactionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,8 +47,9 @@ Route::group(['prefix' => 'auth', 'middleware' => ['setLocale', 'throttle:api']]
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::group(['middleware' => 'jwt.auth:api', 'verified.custom'], function () {
         Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/user-profile/{id}', [AuthController::class, 'userProfile']);
         Route::post('/complete-profile', [AuthController::class, 'completeProfile']);
-        Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+        // Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
         Route::put('/change-password', [AuthController::class, 'changePassword']);
         Route::post('/change-avatar', [AuthController::class, 'changeAvatar']);
         Route::put('/update-profile', [AuthController::class, 'updateProfile']);
@@ -57,6 +62,12 @@ Route::group(['middleware' => ['jwt.auth:api', 'verified.custom', 'setLocale', '
     Route::prefix('categorys')->group(function () {
         Route::get('/all', [CategoriesController::class, 'index']);
         Route::get('/{id}', [CategoriesController::class, 'show']);
+
+        Route::prefix('sub')->group(function () {
+            Route::get('/all', [SubCategoriesController::class, 'index']);
+            Route::get('/{id}', [SubCategoriesController::class, 'show']);
+        });
+
     });
 
     // ?todo interests
@@ -91,14 +102,14 @@ Route::group(['middleware' => ['jwt.auth:api', 'verified.custom', 'setLocale', '
     });
     // ?todo reviews
     Route::prefix('reviews')->group(function () {
-        Route::get('/seller/avg/rating/{id}', [ReviewsController::class, 'sellerAverageRating']);
-        Route::get('/seller/reviews/count/{id}', [ReviewsController::class, 'sellerReviewsCount']);
-        Route::get('/seller/reviews/{id}', [ReviewsController::class, 'sellerReviews']);
-        Route::get('/buyer/reviews/{id}', [ReviewsController::class, 'buyerReviews']);
+        // Route::get('/seller/avg/rating/{id}', [ReviewsController::class, 'sellerAverageRating']);
+        // Route::get('/seller/reviews/count/{id}', [ReviewsController::class, 'sellerReviewsCount']);
+        Route::post('/seller/{id}', [ReviewsController::class, 'sellerReviews']);
+        Route::post('/reviewer', [ReviewsController::class, 'reviewerReviews']);
         Route::get('/{id}', [ReviewsController::class, 'show']);
-        Route::post('/create', [ReviewsController::class, 'create']);
+        Route::post('/create', [ReviewsController::class, 'store']);
         Route::put('/update/{id}', [ReviewsController::class, 'update']);
-        Route::delete('/delete/{id}', [ReviewsController::class, 'delete']);
+        Route::delete('/delete/{id}', [ReviewsController::class, 'destroy']);
     });
 
     // ?todo Complaints
@@ -150,6 +161,12 @@ Route::group(['middleware' => ['jwt.auth:api', 'verified.custom', 'setLocale', '
         // Route::post('/send/all', [NotificationsController::class, 'sendToAll']);
         // Route::post('/send', [NotificationsController::class, 'send']);
     });
+
+    // ?todo transactions 
+    Route::prefix('transactions')->group(function () {
+        Route::get('/my', [TransactionsController::class, 'myTransactions']);
+        Route::get('/{id}', [TransactionsController::class, 'show']);
+    });
 });
 
 // ?todo auction
@@ -178,7 +195,20 @@ Route::prefix('auctions')->group(function () {
     });
 });
 
-
+// ?todo Ads
+Route::prefix('ads')->middleware('jwt.auth:api')->group(function () {
+    Route::get('/all', [AdsController::class, 'index']);
+    Route::get('/{id}', [AdsController::class, 'show']);
+    Route::post('/create', [AdsController::class, 'create']);
+    Route::post('/update/{id}', [AdsController::class, 'update']);
+    Route::delete('/delete/{id}', [AdsController::class, 'destroy']);
+    Route::post('/payments/callback', [AdsController::class, 'callback'])->name('ads.callback');
+    // ?todo Ads price
+    Route::prefix('price')->group(function () {
+        Route::get('/all', [AdPriceController::class, 'index']);
+        Route::get('/{id}', [AdPriceController::class, 'show']);
+    });
+});
 
 
 Route::post('/payment/create', [PaymentController::class, 'create']);

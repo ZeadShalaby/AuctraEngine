@@ -125,6 +125,15 @@ class PostsRepository implements PostsRepositoryInterface
     {
         return $this->query()
             ->where('user_id', $userId)
+            ->with([
+                'user' => function ($q) {
+                    $q->withCount([
+                        'reviews',
+                        'soldItems',
+                    ])
+                        ->withAvg('reviews', 'rating');
+                }
+            ])
             ->paginate($perPage);
     }
 

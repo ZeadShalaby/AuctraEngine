@@ -7,24 +7,30 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Reels;
 use App\Models\User;
+use Database\Seeders\AdPricesSeeder;
+use Database\Seeders\AuctionSeeder;
+use Database\Seeders\PromotionPackageSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
+        ini_set('memory_limit', '-1');
         $this->call([
             PermissionTableSeeder::class,
             RoleTableSeeder::class,
             UserTableSeeder::class,
+            AdPricesSeeder::class,
+            PromotionPackageSeeder::class,
         ]);
 
-        User::factory(40)->create();
+        User::factory(20)->create();
 
-        // ================= POSTS =================
-        Post::factory(100)->create()->each(function ($post) {
+        // ================= POSTS ===================
+        Post::factory(20)->create()->each(function ($post) {
 
-            $image = storage_path('app/public/images/back2.png');
+            $image = storage_path('app/public/images/auction3.png');
             $video = storage_path('app/public/videos/video1.mp4');
 
             if (file_exists($image)) {
@@ -40,11 +46,30 @@ class DatabaseSeeder extends Seeder
             }
         });
 
-        // ================= REELS =================
-        Reels::factory(60)->create()->each(function ($reel) {
+        // ================= CATEGORIES =================
+        $categories = [
+            ['name_en' => 'Watches', 'name_ar' => 'ساعات'],
+            ['name_en' => 'Cars', 'name_ar' => 'سيارات'],
+            ['name_en' => 'Mechanics', 'name_ar' => 'لوحات فنية'],
+            ['name_en' => 'Jewelry', 'name_ar' => 'خردة'],
 
-            $video = storage_path('app/public/videos/video1.mp4');
-            $thumb = storage_path('app/public/images/back2.png');
+        ];
+        foreach ($categories as $category) {
+            Category::factory()->create(['name_en' => $category['name_en'], 'name_ar' => $category['name_ar']]);
+        }
+
+        // ================= Sub CATEGORIES =============
+        $this->call(SubCategorySeeder::class);
+
+        // ================= AUCTIONS ===================
+        $this->call(AuctionSeeder::class);
+
+
+        // ================= REELS ======================
+        Reels::factory(30)->create()->each(function ($reel) {
+
+            $video = storage_path('app/public/videos/video2.mp4');
+            $thumb = storage_path('app/public/images/auction2.png');
 
             if (file_exists($video)) {
                 $reel->addMedia($video)
@@ -59,10 +84,10 @@ class DatabaseSeeder extends Seeder
             }
         });
 
-        // ================= ADS =================
-        Ads::factory(25)->create()->each(function ($ad) {
+        // ================= ADS ========================
+        Ads::factory(20)->create()->each(function ($ad) {
 
-            $image = storage_path('app/public/images/back2.png');
+            $image = storage_path('app/public/images/auction1.png');
             $video = storage_path('app/public/videos/video1.mp4');
 
             if (file_exists($image)) {
@@ -77,17 +102,5 @@ class DatabaseSeeder extends Seeder
                     ->toMediaCollection('video');
             }
         });
-
-        // ================= CATEGORIES =================
-        $categories = [
-            ['name_en' => 'Watches', 'name_ar' => 'ساعات'],
-            ['name_en' => 'Cars', 'name_ar' => 'سيارات'],
-            ['name_en' => 'Mechanics', 'name_ar' => 'لوحات فنية'],
-            ['name_en' => 'Jewelry', 'name_ar' => 'خردة'],
-            
-        ];
-        foreach ($categories as $category) {
-            Category::factory()->create(['name_en' => $category['name_en'], 'name_ar' => $category['name_ar']]);
-        }
     }
 }

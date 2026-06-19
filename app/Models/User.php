@@ -12,6 +12,7 @@ use App\Models\Reels;
 use App\Models\reports\Report;
 use App\Models\Review;
 use App\Models\Share;
+use App\Models\Wallet\Wallet;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,6 +22,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Yajra\DataTables\Html\Editor\Fields\Hidden;
+use App\Enums\AuctionStatus;
 
 class User extends Authenticatable implements MustVerifyEmail, HasMedia, JWTSubject
 {
@@ -165,6 +167,11 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia, JWTSubj
         return $this->hasMany(Review::class, 'seller_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'seller_id');
+    }
+
     public function reviewsGiven()
     {
         return $this->hasMany(Review::class, 'reviewer_id');
@@ -174,6 +181,17 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia, JWTSubj
     public function likedPosts()
     {
         return $this->morphedByMany(Post::class, 'likeable', 'likes');
+    }
+
+    public function balance()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function soldItems()
+    {
+        return $this->hasMany(Auction::class, 'user_id')
+            ->where('status', AuctionStatus::ENDED->value);
     }
 
     public function likedReels()

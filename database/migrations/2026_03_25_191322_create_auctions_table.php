@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('winner_id')->nullable()->constrained('users')->nullOnDelete();;
+            $table->foreignId('sub_category_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
@@ -24,6 +25,8 @@ return new class extends Migration {
             $table->decimal('current_price', 10, 2)->nullable();  //? current highest bid price
             $table->dateTime('start_at');
             $table->dateTime('end_at');
+            $table->float('terms_price')->default(0);
+            $table->integer('views')->default(0);
             // ? status new or used
             $table->enum('condition', ['new', 'used']);
             $table->enum('status', ['pending', 'processing', 'active', 'ended', 'cancelled'])->default('pending'); // ? todo AuctionStatus

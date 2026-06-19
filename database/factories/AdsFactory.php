@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\AdPrice;
 use App\Models\Ads;
+use App\Models\Auction;
 use App\Models\Post;
 use App\Models\Reels;
 use App\Models\User;
@@ -14,19 +16,19 @@ class AdsFactory extends Factory
 
     public function definition(): array
     {
-        $type = fake()->randomElement([
-            Post::class,
-            Reels::class,
-        ]);
+        $type = fake()->randomElement([Post::class, Reels::class]);
 
-        $model = $type::inRandomOrder()->first();
+        $model = $type::inRandomOrder()->first() ?? null;
 
         return [
-
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'auction_id' => fake()->optional(0.7)->passthrough(
+                Auction::inRandomOrder()->first()?->id
+            ) ?? null,
+            'ad_price_id' => AdPrice::inRandomOrder()->first()?->id ?? AdPrice::factory(),
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'adable_id' => $model?->id,
+            'adable_id' => $model->id ?? null,
             'adable_type' => $type,
             'status' => 'active',
             'starts_at' => now()->subDays(rand(1, 5)),

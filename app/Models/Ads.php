@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
-use App\Enums\AdsStatus;
+use App\Contracts\HasTransactionSummary;
+use App\Contracts\PayableInterface;
+use App\Enums\PaymentType;
+use App\Models\Auction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Ads extends Model implements HasMedia
+class Ads extends Model implements HasMedia, PayableInterface, HasTransactionSummary
 {
     use HasFactory, InteractsWithMedia, LogsActivity;
 
@@ -28,28 +31,26 @@ class Ads extends Model implements HasMedia
 
 
     protected $appends = ['image', 'video'];
-
-
-    public function scopeActive($query)
+    protected $casts = [
+        'starts_at' => 'datetime',
+        'expires_at' => 'datetime',
+    ];
+    public function scopeStatus($query, $status)
     {
-        return $query
-            ->where('status', '=', AdsStatus::ACTIVE)
-            ->orWhere('status', '=', AdsStatus::LIVE)
-            ->where(function ($q) {
-
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-
-            })
-            ->whereColumn('current_impressions', '<', 'max_impressions');
+        return $query->where('status', $status);
     }
 
     public function scopeDateRange($query, $start, $end)
     {
-        return $query->when($start && $end, function ($q) use ($start, $end) {
-            $q->where('starts_at', '<=', $end)
-                ->where('expire_at', '>=', $start);
+        return $query->where(function ($q) use ($start, $end) {
+            $q->whereBetween('starts_at', [$start, $end])
+                ->orWhereBetween('expires_at', [$start, $end]);
         });
+    }
+
+    public function scopeType($query, $type)
+    {
+        return $query->where('feed_type', $type);
     }
 
     public function user()
@@ -57,10 +58,49 @@ class Ads extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
+    public function auction()
+    {
+        return $this->belongsTo(Auction::class);
+    }
+
     public function adable()
     {
         return $this->morphTo();
     }
+
+
+    public function adPrice()
+    {
+        return $this->belongsTo(AdPrice::class, 'ad_price_id');
+    }
+
+    public function getPrice(): float
+    {
+        return (float) ($this->adPrice->price ?? 0);
+    }
+
+    public function getPaymentType()
+    {
+        return PaymentType::AD_FEE;
+    }
+
+    public function getDescription(): string
+    {
+        return "دفع قيمة الإعلان رقم: {$this->id} - باقة: " . ($this->adPrice->name ?? 'عامة');
+    }
+
+    // ? return array in resource transaction 
+    public function transactionSummary(): array
+    {
+        return [
+            'id' => $this->id,
+            'type' => 'ads',
+            'title' => $this->title,
+        ];
+    }
+    /* =======================
+        MEDIA
+    ======================= */
 
     public function getImageAttribute()
     {
@@ -71,6 +111,4 @@ class Ads extends Model implements HasMedia
     {
         return $this->getFirstMediaUrl('video');
     }
-
-
 }

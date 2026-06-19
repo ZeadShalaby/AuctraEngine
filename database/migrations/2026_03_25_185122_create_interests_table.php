@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('interests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->text('keywords')->nullable()->after('category_id');
+            $table->text('keywords')->nullable();
             $table->unique('category_id');
             $table->timestamps();
         });

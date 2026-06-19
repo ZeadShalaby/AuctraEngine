@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Eloquent;
 
 use App\Models\AdPrice;
 use App\Repositories\Interfaces\AdPriceRepositoryInterface;
@@ -8,10 +8,12 @@ use App\Repositories\Interfaces\AdPriceRepositoryInterface;
 class AdPriceRepository implements AdPriceRepositoryInterface
 {
 
-    public function __construct(protected AdPrice $adprice){}
+    public function __construct(protected AdPrice $adprice)
+    {
+    }
     public function all($perPage = 10)
     {
-        return $this->adprice::paginate($perPage);
+        return $this->adprice::active()->paginate($perPage);
     }
 
     public function find(int $id)

@@ -23,7 +23,8 @@ class UpdateRequest extends FormRequest
     {
         return [
             //
-            'rating' => 'sometimes|integer|between:1,5'
+            'rating' => 'sometimes|integer|between:1,5',
+            'content' => 'sometimes|string|max:255',
         ];
     }
 }

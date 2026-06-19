@@ -1,12 +1,20 @@
 <?php
 
+use App\Enums\AdsStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\PaymentType;
 use App\Enums\UserType;
 use App\Events\InteractionToggled;
 use App\Models\Category;
 use App\Models\Interest;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\Wallet\Payment;
+use App\Models\Wallet\Transaction;
+use App\Models\Wallet\Wallet;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 function removeSession($session)
 {
     if (\Session::has($session)) {
@@ -439,7 +447,7 @@ if (!function_exists('extractKeywords')) {
         // ? 1. concat title and description
         $text = trim($text);
         // ? 2. word segmentation  
-        $words =  explode(' ', str_replace('-', ' ', $text));
+        $words = explode(' ', str_replace('-', ' ', $text));
         $stopWords = ['the', 'and', 'is', 'a', 'to', 'of', 'in'];
 
         // ? 3. clear short words 
@@ -454,5 +462,210 @@ if (!function_exists('extractKeywords')) {
 
         return implode(', ', $keywords);
     }
-
 }
+
+if (!function_exists('payment')) {
+    function payment(
+        $user_id,
+        $merchant_ref,
+        $amount,
+        $status,
+        $payment_gateway = 'moamalat',
+        $type,
+        $payable_type,
+        $payable_id,
+        $details = null,
+    ) {
+        DB::beginTransaction();
+
+        try {
+            /*
+            |--------------------------------------------------------------------------
+            |    (Idempotency Check)
+            |--------------------------------------------------------------------------
+            |  lockForUpdate()  
+            */
+
+            $existingPayment = Payment::where('merchant_ref', $merchant_ref)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingPayment) {
+                DB::rollBack();
+                return $existingPayment;
+            }
+
+            $payment = Payment::create([
+                'user_id' => $user_id,
+                'merchant_ref' => $merchant_ref,
+                'amount' => $amount,
+                'status' => $status,
+                'payment_gateway' => $payment_gateway,
+                'type' => $type,
+                'payable_type' => $payable_type,
+                'payable_id' => $payable_id,
+                'details' => $details,
+            ]);
+
+            DB::commit();
+            return $payment->load('payable');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+}
+
+if (!function_exists('transaction')) {
+    function transaction(
+        $user_id,
+        $amount,
+        $type,
+        $status,
+        $source_type,
+        $source_id,
+        $description
+    ) {
+        $lockKey = "transaction_lock_{$user_id}_{$source_type}_{$source_id}";
+
+        $lock = Cache::lock($lockKey, 10);
+
+        if (!$lock->get()) {
+            throw new Exception(__("messages.transaction_in_progress"));
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $transaction = Transaction::create([
+                'user_id' => $user_id,
+                'amount' => $amount,
+                'type' => $type,
+                'status' => $status,
+                'source_type' => $source_type,
+                'source_id' => $source_id,
+                'description' => $description,
+            ]);
+
+            DB::commit();
+            return $transaction->load('source');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            $lock->release(); // ? release the lock and allow other requests
+            throw $e;
+        }
+    }
+}
+
+if (!function_exists('process_payment_callback')) {
+    function process_payment_callback(
+        $merchant_ref,
+        $user_id,
+        $amount_paid,
+        $payable_id,
+        $type,
+        $gateway_details = null,
+        $description = null
+    ) {
+        return DB::transaction(function () use ($merchant_ref, $user_id, $amount_paid, $payable_id, $gateway_details, $type, $description) {
+
+            $payment = Payment::where('merchant_ref', $merchant_ref)
+                ->where('status', PaymentStatus::PENDING)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$payment) {
+                throw new Exception(__("messages.payment_not_found"));
+            }
+
+            if ((int) $payment->user_id !== (int) $user_id) {
+                throw new Exception(__("messages.payment_not_found"));
+            }
+
+            if ((int) $payment->payable_id !== (int) $payable_id) {
+                throw new Exception(__("messages.payment_not_found"));
+            }
+
+            if ((float) $payment->amount !== (float) $amount_paid) {
+                throw new Exception(__("messages.payment_not_found"));
+            }
+
+            //-------------------------------------------------------------
+            // ? Process the payment
+            //-------------------------------------------------------------
+
+            $payment->update([
+                'status' => PaymentStatus::SUCCESS,
+                'details' => $gateway_details ? json_encode($gateway_details) : null
+            ]);
+
+            $ad = $payment->payable;
+            if ($ad) {
+                $ad->update(['status' => AdsStatus::ACTIVE]);
+            }
+            // ? Create a transaction
+            transaction(
+                user_id: $payment->user_id,
+                amount: $payment->amount,
+                type: $type,
+                status: PaymentStatus::COMPLETED,
+                source_type: get_class($payment),
+                source_id: $payment->id,
+                description: $description
+            );
+
+            return $payment;
+        });
+    }
+}
+if (!function_exists('checkWalletBalance')) {
+    function checkWalletBalance($user, $price)
+    {
+        $wallet = $user->balance;
+        if (!$wallet) {
+            throw new \Exception(__("messages.wallet_not_found"));
+        }
+        $actualBalance = (float) $wallet->getRawOriginal('balance');
+        if ($actualBalance < (float) $price) {
+            throw new \Exception(__("messages.insufficient_balance"));
+        }
+        return true;
+    }
+}
+
+
+if (!function_exists('incrementWallet')) {
+    function incrementWallet($user, $amount)
+    {
+        $wallet = Wallet::where('user_id', $user->id)->first();
+        $wallet->increment('balance', $amount);
+        $wallet->save();
+
+    }
+}
+
+if (!function_exists('decrementWallet')) {
+    function decrementWallet($user, $amount)
+    {
+        $wallet = Wallet::where('user_id', $user->id)->first();
+        $wallet->decrement('balance', $amount);
+        $wallet->save();
+    }
+}
+
+
+
+if (!function_exists('checkOwner')) {
+    function checkOwner(int $user_id, int $object_id)
+    {
+        if ($user_id !== $object_id) {
+            throw new \Exception(__("messages.unauthorized"));
+        }
+        return true;
+    }
+}
+
+
+

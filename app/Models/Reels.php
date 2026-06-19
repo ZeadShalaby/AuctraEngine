@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Ads;
+use App\Models\Auction;
 use App\Models\Comment;
 use App\Models\Interest;
 use App\Models\Like;
@@ -84,6 +85,11 @@ class Reels extends Model implements HasMedia
     public function favourites()
     {
         return $this->morphMany(Favourite::class, 'favoriteable');
+    }
+
+    public function auction()
+    {
+        return $this->belongsTo(Auction::class);
     }
 
     public function getImageAttribute()

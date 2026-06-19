@@ -15,18 +15,18 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 14, 2);
             $table->enum('type', [
-                'deposit',
-                'withdraw',
-                'bid_hold',
-                'bid_release',
-                'auction_win'
+                'deposit',     // شحن محفظة
+                'withdraw',    // سحب من المحفظة
+                'bid_hold',    // حجز جدية جدية المزايدة
+                'bid_release', // فك الحجز
+                'auction_win', // دفع تمن المزاد الفائز به
+                'auction_terms', // دفع قيمة المزاد من المحفظة
+                'ad_fee'       // دفع قيمة إعلان من المحفظة (أضفناها هنا)
             ]);
-            $table->enum('status', [
-                'pending',
-                'completed',
-                'failed'
-            ])->default('completed');
-            $table->string('reference')->nullable(); //! auction_id or bid_id
+            $table->enum('status', ['pending', 'completed', 'failed'])->default('completed');
+
+            $table->nullableMorphs('source'); // بتعمل source_type و source_id (زي Auction أو Bid أو Ad)
+
             $table->text('description')->nullable();
             $table->timestamps();
         });

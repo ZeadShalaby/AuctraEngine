@@ -10,14 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('ad_prices', function (Blueprint $table) {
+        Schema::create('auction_terms', function (Blueprint $table) {
             $table->id();
-            $table->enum('placement', ['feed', 'reels', 'both']);            //? feed | reels | both
-            $table->decimal('price', 10, 2);
-            $table->boolean('is_active')->default(true);
-            $table->integer('max_impressions')->default(0);
-            $table->integer('max_days')->default(0);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('auction_id')->constrained()->onDelete('cascade');
+            $table->decimal('amount', 10, 2); // ? the amount of the terms
             $table->timestamps();
+            $table->unique(['user_id', 'auction_id']);
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('ad_prices');
+        Schema::dropIfExists('auction_terms');
     }
 };

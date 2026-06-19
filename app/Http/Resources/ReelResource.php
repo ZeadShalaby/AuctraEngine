@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\AuctionReelsResource;
 use App\Http\Resources\ReelUserResource;
 use App\Models\Reels;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class ReelResource extends JsonResource
             'description' => $this->description,
             'video' => $this->getFirstMediaUrl('video'),
             'user' => new ReelUserResource($this->user),
+            'auction' => new AuctionReelsResource($this->auction) ,
             'interests' => $this->whenLoaded('interests'),
             'likes_count' => $this->item_type === 'ad'
                 ? rand(100, 350)

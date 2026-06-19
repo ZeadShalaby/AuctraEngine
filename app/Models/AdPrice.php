@@ -13,6 +13,14 @@ class AdPrice extends Model
     const PLACEMENT_REELS = 'reels';
     const PLACEMENT_BOTH = 'both';
 
+    const PLACEMENT_POSTS = 'posts';
+
+    protected $hidden = ['created_at', 'updated_at'];
+    
+    public function scopeActive($query)
+    {
+        return $query->where('is_active',true);
+    }
     public static function getPrice($placement)
     {
         return self::where('placement', $placement)

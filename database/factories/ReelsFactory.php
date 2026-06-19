@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Auction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,6 +13,9 @@ class ReelsFactory extends Factory
         return [
 
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'auction_id' => fake()->boolean(50)
+                ? Auction::inRandomOrder()->first()?->id
+                : null,
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
             'views_count' => fake()->numberBetween(1000, 500000),

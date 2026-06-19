@@ -4,30 +4,134 @@ namespace App\Repositories\Eloquent;
 
 use App\Enums\AdsFeedType;
 use App\Enums\AdsStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\PaymentType;
+use App\Models\AdPrice;
 use App\Models\Ads;
+use App\Models\Wallet\Payment;
+use App\Models\Wallet\Wallet;
 use App\Repositories\Interfaces\AdsRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class AdsRepository implements AdsRepositoryInterface
 {
-    public function __construct(protected Ads $ads){}
-
-    public function all($key = 'active' , $start = null , $end = null)
+    public function __construct(protected Ads $ads)
     {
-        $query = $this->ads::where('user_id', auth()->id());
-        $key ? $query->Active() : null;
-        $start && $end ? $query->DateRange($start, $end) : null;
-        return $query->get();
+    }
+
+    private function paymentWallet($user, $ad, $adPrice)
+    {
+        checkWalletBalance($user, $adPrice->price); // ? check wallet balance
+        decrementWallet($user, $adPrice->price);  // ? decrement wallet
+
+        $payment = transaction(
+            user_id: $user->id,
+            amount: $adPrice->price,
+            type: PaymentType::AD_FEE->value,
+            status: PaymentStatus::COMPLETED->value,
+            source_type: get_class($ad),
+            source_id: $ad->id,
+            description: __('messages.payment_success_ad', ['title' => $ad->title])
+        );
+
+        $ad->update([
+            'status' => AdsStatus::ACTIVE->value,
+            'starts_at' => now(),
+            'expires_at' => now()->addDays($adPrice->max_days),
+            'max_impressions' => $adPrice->max_impressions
+        ]);
+        $payment->refresh();
+
+        activityLog($ad, 'ad_active', [
+            'title' => $ad->title,
+            'feed_type' => $ad->feed_type,
+        ]);
+
+        return $payment;
+    }
+
+    private function paymentMoamalat($user, $ad, $adPrice)
+    {
+        $merchantRef = 'AD-' . time() . '-' . $ad->id;
+        $payment = payment(
+            user_id: $user->id,
+            merchant_ref: $merchantRef,
+            amount: $adPrice->price,
+            status: PaymentStatus::PENDING,
+            payment_gateway: $data['gateway_name'] ?? 'moamalat',
+            type: PaymentType::AD_FEE,
+            payable_type: get_class($ad),
+            payable_id: $ad->id,
+            details: null
+        );
+        return $payment;
+    }
+
+
+    public function all($status = null, $start = null, $end = null, $type = null)
+    {
+        return $this->ads::query()
+            ->where('user_id', auth()->id())
+            ->when($status && $start && $end && $type, fn($q) => $q
+                ->status($status)
+                ->dateRange($start, $end)
+                ->type($type))
+            ->latest()
+            ->with('user', 'auction', 'media')
+            ->get();
     }
 
     public function create(array $data)
     {
-        $ad = $this->ads::create($data);
-        return $ad;
+        return DB::transaction(function () use ($data) {
+            $user = auth()->user();
+            $data['status'] = AdsStatus::PENDING;
+            $data['user_id'] = $user->id;
+            $data['adable_type'] = $data['feed_type'] === AdsFeedType::POSTS ? 'App\Models\Post' : 'App\Models\Reel';
+            $video['video'] = $data['video'] ?? null;
+            $image['image'] = $data['image'] ?? null;
+            $payment_type = $data['payment_type'] ?? PaymentType::WALLET->value;
+            unset($data['video'], $data['image'], $data['payment_type']);
+
+            $adPrice = AdPrice::findOrFail($data['ad_price_id']);
+            $ad = $this->ads::create($data);
+
+            addMediaIfExists($ad, $video, 'video');
+            addMediaIfExists($ad, $image, 'image');
+
+            $payment_type === PaymentType::WALLET->value ? $payment = $this->paymentWallet($user, $ad, $adPrice) : $payment = $this->paymentMoamalat($user, $ad, $adPrice);
+
+            return $payment;
+        });
+    }
+
+    public function callback(string $merchantRef, array $gateway_details)
+    {
+        $payment = Payment::where('merchant_ref', $merchantRef)->with('payable')->first();
+        $description = __("messages.payment_success_ad", ['title' => $payment->payable->title, 'amount' => $payment->amount]);
+        return process_payment_callback($merchantRef, auth()->user()->id, $payment->amount, $payment->payable_id, $payment->type, $gateway_details, $description);
     }
 
     public function find(int $id)
     {
-        return $this->ads::find($id);
+        return $this->ads::where('user_id', auth()->id())
+            ->with('user', 'auction', 'media')
+            ->findOrFail($id);
+    }
+
+    public function update(array $data, int $id)
+    {
+        $ad = $this->find($id);
+        checkOwner(auth()->user()->id, $ad->user_id);
+        $ad->update($data);
+        return $ad;
+    }
+
+    public function delete(int $id): bool
+    {
+        $ad = $this->find($id);
+        checkOwner(auth()->user()->id, $ad->user_id);
+        return $ad->delete();
     }
 
     public function submitForReview(int $adId): bool
@@ -36,6 +140,7 @@ class AdsRepository implements AdsRepositoryInterface
         $ad->status = AdsStatus::PENDING;
         return $ad->save();
     }
+
 
     public function approve(int $adId): bool
     {
@@ -64,7 +169,7 @@ class AdsRepository implements AdsRepositoryInterface
     public function pause(int $adId): bool
     {
         $ad = $this->ads::find($adId);
-        $ad->status = AdsStatus::LIVE;
+        $ad->status = AdsStatus::ACTIVE;
         activityLog($ad, 'ad_paused', [
             'title' => $ad->title,
             'feed_type' => $ad->feed_type,
@@ -72,7 +177,7 @@ class AdsRepository implements AdsRepositoryInterface
         return $ad->save();
     }
 
-    public function getActiveAdsForFeed(int $limit = 3)
+    public function getActiveAdsForFeed(int $limit = 3) // ?posts
     {
         return $this->ads::where('feed_type', AdsFeedType::POSTS)->limit($limit)->get();
     }

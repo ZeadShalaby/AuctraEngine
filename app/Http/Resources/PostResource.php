@@ -31,7 +31,7 @@ class PostResource extends JsonResource
             'stats' => [
                 'likes' => $this->likes_count ?? rand(121, 505),
                 'comments' => $this->comments_count ?? rand(21, 305),
-                'shares' => $this->shares_count ?? rand(0,10),
+                'shares' => $this->shares_count ?? rand(0, 10),
             ],
 
             'user' => [
@@ -40,8 +40,15 @@ class PostResource extends JsonResource
                 'name' => $this->user->full_name,
                 'phonenumber' => $this->user->phone_number,
                 // 'profile' => $this->user->userProfile,
-                'media' => $this->user->getFirstMediaUrl('avatar')?: asset('storage/images/default.png'),
+                'media' => $this->user->getFirstMediaUrl('avatar') ?: asset('storage/images/default.png'),
+                'details' => [
+                    'rating' => round($this->user->reviews_avg_rating ?? 0, 1),
+                    'reviews' => $this->user->reviews_count,
+                    'sold' => $this->user->sold_items_count,
+                ],
             ],
+
+
         ];
     }
 }

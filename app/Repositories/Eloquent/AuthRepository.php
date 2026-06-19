@@ -21,7 +21,7 @@ class AuthRepository implements AuthRepositoryInterface
         return $user->userProfile()->updateOrCreate([], $data);
     }
 
-    public function findUser($id)
+    public function findUser(int $id)
     {
         return $this->user::find($id);
     }

@@ -13,9 +13,10 @@ return new class extends Migration {
         Schema::create('ads', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('ad_price_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->morphs('adable');
+            $table->nullableMorphs('adable');
             $table->enum('status', ['pending', 'active', 'rejected', 'live'])->default('pending');
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('expires_at')->nullable();

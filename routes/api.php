@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\Ads\AdsController;
 use App\Http\Controllers\Api\Ads\AdsPrices\AdPriceController;
 use App\Http\Controllers\Api\Auction\AuctionController;
+use App\Http\Controllers\Api\Auction\AuctionPromotionController;
+use App\Http\Controllers\Api\Auction\PromotionPackageController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Categories\CategoriesController;
 use App\Http\Controllers\Api\Categories\SubCategories\SubCategoriesController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Api\Reviews\ReviewsController;
 use App\Http\Controllers\Api\Share\SharesController;
 use App\Http\Controllers\Api\Wallet\PaymentController;
 use App\Http\Controllers\Api\Wallet\TransactionsController;
+use App\Repositories\Interfaces\AuctionPromotioRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -190,7 +193,20 @@ Route::prefix('auctions')->group(function () {
 
         //? verified required
         Route::middleware('verified.custom')->group(function () {
-            Route::post('/bid', [AuctionController::class, 'placeBid']);
+            Route::prefix('promotions')->group(function () {
+
+            });
+            Route::prefix('packages')->group(function () {
+                Route::get('/all', [PromotionPackageController::class, 'index']);
+                Route::get('/{id}', [PromotionPackageController::class, 'show']);
+            });
+            Route::prefix('promotions')->group(function () {
+                Route::get('/my', [AuctionPromotionController::class, 'index']);
+                Route::post('/subscription', [AuctionPromotionController::class, 'buyPackage']);
+            });
+            Route::prefix('bids')->group(function () {
+                Route::post('/place', [AuctionController::class, 'placeBid']);
+            });
         });
     });
 });
@@ -202,7 +218,6 @@ Route::prefix('ads')->middleware('jwt.auth:api')->group(function () {
     Route::post('/create', [AdsController::class, 'create']);
     Route::post('/update/{id}', [AdsController::class, 'update']);
     Route::delete('/delete/{id}', [AdsController::class, 'destroy']);
-    Route::post('/payments/callback', [AdsController::class, 'callback'])->name('ads.callback');
     // ?todo Ads price
     Route::prefix('price')->group(function () {
         Route::get('/all', [AdPriceController::class, 'index']);
@@ -210,7 +225,15 @@ Route::prefix('ads')->middleware('jwt.auth:api')->group(function () {
     });
 });
 
+Route::prefix('payments')->middleware(['jwt.auth:api', 'verified.custom'])->group(function () {
+    Route::post('/callback', [PaymentController::class, 'callback'])->name('payments.callback');
+    Route::prefix('wallet')->group(function () {
+        Route::post('/charge', [PaymentController::class, 'chargeWallet'])->name('payments.chargeWallet');
+        Route::get('/my', [PaymentController::class, 'walletBalance'])->name('payments.walletBalance');
+        Route::get('/log', [PaymentController::class, 'walletLog'])->name('payments.walletLog');
+    });
 
+});
 Route::post('/payment/create', [PaymentController::class, 'create']);
 Route::post('/pay/{ref}', [PaymentController::class, 'showPaymentPage']);
 // ? callback URL that Moamalat will call after payment

@@ -21,7 +21,8 @@ return new class extends Migration {
                 'bid_release', // فك الحجز
                 'auction_win', // دفع تمن المزاد الفائز به
                 'auction_terms', // دفع قيمة المزاد من المحفظة
-                'ad_fee'       // دفع قيمة إعلان من المحفظة (أضفناها هنا)
+                'ad_fee',       // دفع قيمة إعلان من المحفظة (أضفناها هنا)
+                'auction_promotion' // دفع قيمة اشتراك ف الميزة المزادية من المحفظة
             ]);
             $table->enum('status', ['pending', 'completed', 'failed'])->default('completed');
 

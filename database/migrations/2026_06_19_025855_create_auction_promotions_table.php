@@ -26,6 +26,7 @@ return new class extends Migration {
                 'active',
                 'expired',
                 'cancelled',
+                "review",
             ])->default('pending');
             $table->timestamps();
         });

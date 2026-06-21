@@ -3,15 +3,20 @@
 use App\Enums\AdsStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
+use App\Enums\PromotionStatus;
 use App\Enums\UserType;
 use App\Events\InteractionToggled;
+use App\Models\Card;
 use App\Models\Category;
 use App\Models\Interest;
+use App\Models\RechargeCard;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\Wallet\Payment;
 use App\Models\Wallet\Transaction;
 use App\Models\Wallet\Wallet;
+use App\Models\Wallet\WalletLog;
+use App\Services\Payments\CardPayment;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -595,15 +600,21 @@ if (!function_exists('process_payment_callback')) {
             //-------------------------------------------------------------
             // ? Process the payment
             //-------------------------------------------------------------
-
             $payment->update([
                 'status' => PaymentStatus::SUCCESS,
+                'amount' => $gateway_details['amount'] ?? $payment->amount,
                 'details' => $gateway_details ? json_encode($gateway_details) : null
             ]);
 
-            $ad = $payment->payable;
-            if ($ad) {
-                $ad->update(['status' => AdsStatus::ACTIVE]);
+            if ($type === PaymentType::WALLET_DEPOSIT->value) {
+                $amount = $gateway_details['amount'] ?? $payment->amount;
+                app(CardPayment::class)->pay($payment->user, $payment->payable, $amount, $type);
+                return $payment->refresh();
+            }
+            $object = $payment->payable;
+            if ($object) {
+                $status = ($type === 'moamalat') ? AdsStatus::PENDING->value : (auth()->user()->ads_enabled ? AdsStatus::ACTIVE->value : AdsStatus::REVIEW->value);
+                $payment->type === PaymentType::AD_FEE->value ? $object->update(['status' => $status]) : $object->update(['status' => PromotionStatus::ACTIVE]);
             }
             // ? Create a transaction
             transaction(
@@ -620,6 +631,16 @@ if (!function_exists('process_payment_callback')) {
         });
     }
 }
+
+if (!function_exists('completeCallback')) {
+    function completeCallback($merchantRef, $gateway_details)
+    {
+        $payment = Payment::where('merchant_ref', $merchantRef)->with('payable')->first();
+        $description = __("messages.payment_success_ad", ['title' => $payment->payable->title, 'amount' => $payment->amount]);
+        return process_payment_callback($merchantRef, auth()->user()->id, $payment->amount, $payment->payable_id, $payment->type, $gateway_details, $description);
+    }
+}
+
 if (!function_exists('checkWalletBalance')) {
     function checkWalletBalance($user, $price)
     {
@@ -639,10 +660,29 @@ if (!function_exists('checkWalletBalance')) {
 if (!function_exists('incrementWallet')) {
     function incrementWallet($user, $amount)
     {
-        $wallet = Wallet::where('user_id', $user->id)->first();
-        $wallet->increment('balance', $amount);
+        $wallet = Wallet::where('user_id', $user->id)->lockForUpdate()->first();
+        if (!$wallet) {
+            $wallet = Wallet::create(['user_id' => $user->id, 'balance' => 0, 'reserved_balance' => 0]);
+        }
+
+        $oldBalance = $wallet->balance;
+        $oldReserved = $wallet->reserved_balance;
+
+        $wallet->balance += $amount;
+        $wallet->reserved_balance += $amount;
         $wallet->save();
 
+        WalletLog::create([
+            'wallet_id' => $wallet->id,
+            'amount' => $amount,
+            'type' => PaymentType::WALLET_DEPOSIT->value,
+            'balance_before' => $oldBalance,
+            'balance_after' => $wallet->balance,
+            'reserved_before' => $oldReserved,
+            'reserved_after' => $wallet->reserved_balance,
+            'reference' => PaymentType::WALLET_DEPOSIT->value,
+            'description' => "Wallet Deposit",
+        ]);
     }
 }
 
@@ -664,6 +704,26 @@ if (!function_exists('checkOwner')) {
             throw new \Exception(__("messages.unauthorized"));
         }
         return true;
+    }
+}
+
+if (!function_exists('checkAvailableCard')) {
+    function checkAvailableCard($user, string $card)
+    {
+        return DB::transaction(function () use ($user, $card) {
+            $recharge = RechargeCard::where('card_number', $card)
+                ->with('card')
+                ->lockForUpdate()
+                ->first();
+            if (!$recharge || $recharge->used) {
+                throw new \Exception("هذا الكارت غير صالح أو تم استخدامه مسبقاً.");
+            }
+            $recharge->update([
+                'used' => true,
+            ]);
+            $amount = $recharge->card->recharge_amount;
+            return $amount;
+        });
     }
 }
 

@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('title');
             $table->text('description')->nullable();
             $table->nullableMorphs('adable');
-            $table->enum('status', ['pending', 'active', 'rejected', 'live'])->default('pending');
+            $table->enum('status', ['pending', 'active', 'rejected', 'live', 'review', 'ended'])->default('pending');
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->integer('max_impressions')->default(0);

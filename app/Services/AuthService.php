@@ -116,6 +116,7 @@ class AuthService
 
         $user = Auth::guard('api')->user();
         $emailVerified = $this->checkEmailVerified($user);
+        $user->image = $user->getProfileImage();
         return $emailVerified ? $emailVerified : successResponse(
             __('pages.success.auth.login_success'),
             [
@@ -132,11 +133,11 @@ class AuthService
             DB::beginTransaction();
 
             $user = $this->authRepository->findUser($user_id);
-
+           
             $this->checkOtp($user, $inputCode);
-
+            
             $user->update(['email_verified_at' => now()]);
-
+            $user->image = $user->getProfileImage();
             $token = Auth::guard('api')->login($user);
 
             DB::commit();

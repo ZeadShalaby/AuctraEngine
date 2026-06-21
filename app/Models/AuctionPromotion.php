@@ -21,6 +21,11 @@ class AuctionPromotion extends Model
         return $this->belongsTo(Auction::class);
     }
 
+    public function getPayloadAttribute()
+    {
+        return $this->payable ?? $this->source;
+    }
+
     public function package()
     {
         return $this->belongsTo(PromotionPackage::class, 'promotion_package_id');

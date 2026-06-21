@@ -11,6 +11,8 @@ class WalletLog extends Model
 {
     use HasFactory;
 
+    protected $hidden = ['updated_at'];
+
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
@@ -36,5 +38,5 @@ class WalletLog extends Model
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
 
-    
+
 }

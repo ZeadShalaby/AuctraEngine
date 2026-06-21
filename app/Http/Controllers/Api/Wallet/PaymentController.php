@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers\Api\Wallet;
 
+use App\Enums\PaymentType;
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\PaymentCallbackRequest;
+use App\Http\Requests\Wallet\CardsRequest;
 use App\Models\Wallet\Payment;
 use App\Models\Wallet\Transaction;
+use App\Repositories\Interfaces\PaymentRepositoryInterface;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+
+    public function __construct(protected PaymentRepositoryInterface $paymentRepository)
+    {
+    }
     public function create(Request $request)
     {
         $request->validate([
@@ -39,7 +46,7 @@ class PaymentController extends Controller
         $tid = env('MOAMALAT_TID');
         $secret = env('MOAMALAT_SECRET');
 
-        $amountInDirhams = $payment->amount * 1000; 
+        $amountInDirhams = $payment->amount * 1000;
 
         $dateTime = date('YmdHi');
 
@@ -58,7 +65,7 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function callback(Request $request)
+    public function callbacks(Request $request)
     {
         $payment = Payment::where('merchant_ref', $request->MerchantReference)->first();
 
@@ -87,5 +94,29 @@ class PaymentController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    public function callback(PaymentCallbackRequest $request)
+    {
+        $payment = $this->paymentRepository->callback($request->validated('merchant_ref'), json_decode($request->validated('getway_details'), true));
+        return successResponse(__("messages.success"), $payment->getResource(), 200);
+    }
+
+    public function chargeWallet(CardsRequest $request)
+    {
+        $payment = $this->paymentRepository->chargeWallet($request->validated('payment_type'), $request->validated('cardnumber'));
+        return successResponse(__("messages.success"), $payment, 200);
+    }
+
+    public function walletBalance()
+    {
+        $wallet = $this->paymentRepository->balance();
+        return successResponse(__("messages.success"), $wallet, 200);
+    }
+
+    public function walletLog($start = null, $end = null)
+    {
+        $walletLog = $this->paymentRepository->walletLog($start, $end);
+        return successResponse(__("messages.success"), $walletLog, 200);
     }
 }

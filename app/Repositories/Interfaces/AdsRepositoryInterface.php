@@ -15,9 +15,6 @@ interface AdsRepositoryInterface
     public function update(array $data, int $id);
 
     public function delete(int $id);
-
-    public function callback(string $merchantRef ,array $getway_details);
-
     public function submitForReview(int $adId): bool;
 
     public function approve(int $adId): bool;

@@ -33,7 +33,7 @@ class AdsController extends Controller
     {
         $payment = $this->adsRepo->create($request->validated());
         $responseData = new AdPaymentResource($payment);
-        if ($payment->status === PaymentStatus::COMPLETED) {
+        if ($payment->status === PaymentStatus::COMPLETED->value) {
             return successResponse(__("messages.payment_success_wallet"), $responseData, 201);
         }
         return successResponse(__("messages.created_api_goto_gateway"), $responseData, 201);

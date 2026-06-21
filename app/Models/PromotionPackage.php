@@ -10,7 +10,11 @@ class PromotionPackage extends Model
 {
     use HasFactory;
 
-
+    protected $hidden = ['created_at', 'updated_at'];
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
     public function auctionPromotions()
     {
         return $this->hasMany(AuctionPromotion::class);

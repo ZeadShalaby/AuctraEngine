@@ -13,7 +13,7 @@ class SubCategorySeeder extends Seeder
     /**
      * Run the database seeds.
      */
-public function run(): void
+    public function run(): void
     {
         $data = [
             'ساعات' => [
@@ -50,12 +50,18 @@ public function run(): void
 
             if ($category) {
                 foreach ($subCategories as $sub) {
-                    SubCategory::create([
+                    $subCategory = SubCategory::create([
                         'category_id' => $category->id,
-                        'name_ar'     => $sub['ar'],
-                        'name_en'     => $sub['en'],
-                        'slug'        => Str::slug($sub['en']), 
+                        'name_ar' => $sub['ar'],
+                        'name_en' => $sub['en'],
+                        'slug' => Str::slug($sub['en']),
                     ]);
+                    $image = storage_path('app/public/images/company.png');
+                    if (file_exists($image)) {
+                        $subCategory->addMedia($image)
+                            ->preservingOriginal()
+                            ->toMediaCollection('image');
+                    }
                 }
             }
         }

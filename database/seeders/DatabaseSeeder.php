@@ -9,7 +9,10 @@ use App\Models\Reels;
 use App\Models\User;
 use Database\Seeders\AdPricesSeeder;
 use Database\Seeders\AuctionSeeder;
+use Database\Seeders\CardSeeder;
+use Database\Seeders\CompanySeeder;
 use Database\Seeders\PromotionPackageSeeder;
+use Database\Seeders\RechargeCardSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -23,6 +26,9 @@ class DatabaseSeeder extends Seeder
             UserTableSeeder::class,
             AdPricesSeeder::class,
             PromotionPackageSeeder::class,
+            CompanySeeder::class,
+            CardSeeder::class,
+            RechargeCardSeeder::class,
         ]);
 
         User::factory(20)->create();

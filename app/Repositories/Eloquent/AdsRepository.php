@@ -11,60 +11,32 @@ use App\Models\Ads;
 use App\Models\Wallet\Payment;
 use App\Models\Wallet\Wallet;
 use App\Repositories\Interfaces\AdsRepositoryInterface;
+use App\Services\PaymentManager;
 use Illuminate\Support\Facades\DB;
 
 class AdsRepository implements AdsRepositoryInterface
 {
-    public function __construct(protected Ads $ads)
+    public function __construct(protected Ads $ads, protected PaymentManager $paymentManager)
     {
     }
 
-    private function paymentWallet($user, $ad, $adPrice)
-    {
-        checkWalletBalance($user, $adPrice->price); // ? check wallet balance
-        decrementWallet($user, $adPrice->price);  // ? decrement wallet
 
-        $payment = transaction(
-            user_id: $user->id,
-            amount: $adPrice->price,
-            type: PaymentType::AD_FEE->value,
-            status: PaymentStatus::COMPLETED->value,
-            source_type: get_class($ad),
-            source_id: $ad->id,
-            description: __('messages.payment_success_ad', ['title' => $ad->title])
-        );
+    private function paymentChangeStatus($ad, $adPrice, $type)
+    {
+        $status = ($type === 'moamalat') ? AdsStatus::PENDING->value : (auth()->user()->ads_enabled ? AdsStatus::ACTIVE->value : AdsStatus::REVIEW->value);
 
         $ad->update([
-            'status' => AdsStatus::ACTIVE->value,
+            'status' => $status,
             'starts_at' => now(),
             'expires_at' => now()->addDays($adPrice->max_days),
             'max_impressions' => $adPrice->max_impressions
         ]);
-        $payment->refresh();
 
         activityLog($ad, 'ad_active', [
             'title' => $ad->title,
             'feed_type' => $ad->feed_type,
         ]);
 
-        return $payment;
-    }
-
-    private function paymentMoamalat($user, $ad, $adPrice)
-    {
-        $merchantRef = 'AD-' . time() . '-' . $ad->id;
-        $payment = payment(
-            user_id: $user->id,
-            merchant_ref: $merchantRef,
-            amount: $adPrice->price,
-            status: PaymentStatus::PENDING,
-            payment_gateway: $data['gateway_name'] ?? 'moamalat',
-            type: PaymentType::AD_FEE,
-            payable_type: get_class($ad),
-            payable_id: $ad->id,
-            details: null
-        );
-        return $payment;
     }
 
 
@@ -99,17 +71,13 @@ class AdsRepository implements AdsRepositoryInterface
             addMediaIfExists($ad, $video, 'video');
             addMediaIfExists($ad, $image, 'image');
 
-            $payment_type === PaymentType::WALLET->value ? $payment = $this->paymentWallet($user, $ad, $adPrice) : $payment = $this->paymentMoamalat($user, $ad, $adPrice);
+            $payment = $this->paymentManager->handlePayment($payment_type, $user, $ad, $adPrice->price, PaymentType::AD_FEE->value);
 
+            $this->paymentChangeStatus($ad, $adPrice, $payment_type);
+
+            $payment->refresh();
             return $payment;
         });
-    }
-
-    public function callback(string $merchantRef, array $gateway_details)
-    {
-        $payment = Payment::where('merchant_ref', $merchantRef)->with('payable')->first();
-        $description = __("messages.payment_success_ad", ['title' => $payment->payable->title, 'amount' => $payment->amount]);
-        return process_payment_callback($merchantRef, auth()->user()->id, $payment->amount, $payment->payable_id, $payment->type, $gateway_details, $description);
     }
 
     public function find(int $id)

@@ -10,6 +10,8 @@ class Transaction extends Model
 {
     use HasFactory;
 
+    protected $hidden = ['updated_at'];
+
     public function scopeType($query, $type)
     {
         return $query->where('type', $type);
@@ -23,6 +25,11 @@ class Transaction extends Model
     public function scopeAmountGreaterThan($query, $amount)
     {
         return $query->where('amount', '>', $amount);
+    }
+
+    public function getActiveSourceAttribute()
+    {
+        return $this->payable ?? $this->source;
     }
 
     public function user()

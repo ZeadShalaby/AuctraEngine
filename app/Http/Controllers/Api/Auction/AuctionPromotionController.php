@@ -4,18 +4,23 @@ namespace App\Http\Controllers\Api\Auction;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auction\PromotionRequest;
+use App\Http\Resources\AuctionPromotionFilterResource;
 use App\Http\Resources\AuctionPromotionResource;
 use App\Repositories\Interfaces\AuctionPromotionRepositoryInterface;
+use Illuminate\Http\Request;
 
 class AuctionPromotionController extends Controller
 {
-    public function __construct(protected AuctionPromotionRepositoryInterface $auctionPromotionRepository)
+    public function __construct(protected AuctionPromotionRepositoryInterface $auctionPromotionRepository){}
+    
+    public function allPromotions(Request $request)
     {
+        return successResponse('message.promotions',AuctionPromotionFilterResource::collection($this->auctionPromotionRepository->allPromotions($request->query('type'))) , 200);
     }
 
-    public function index($type)
+    public function myPromotions(Request $request)
     {
-        return $this->auctionPromotionRepository->my($type);
+        return $this->auctionPromotionRepository->my($request->query('type'));
     }
 
     public function buyPackage(PromotionRequest $request)

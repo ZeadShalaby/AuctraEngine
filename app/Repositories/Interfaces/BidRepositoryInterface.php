@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 interface BidRepositoryInterface
 {
     public function create(array $data);
+    public function completeAuctionPayment(int $auctionId);
 
     public function getHighestBid(int $auctionId);
 
@@ -15,4 +16,6 @@ interface BidRepositoryInterface
     public function getAuctionBids(int $auctionId);
 
     public function getActiveAutoBids(int $auctionId, float $currentPrice);
+
+    public function bidHistory();
 }

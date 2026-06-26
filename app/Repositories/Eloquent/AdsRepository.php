@@ -62,7 +62,7 @@ class AdsRepository implements AdsRepositoryInterface
             $data['adable_type'] = $data['feed_type'] === AdsFeedType::POSTS ? 'App\Models\Post' : 'App\Models\Reel';
             $video['video'] = $data['video'] ?? null;
             $image['image'] = $data['image'] ?? null;
-            $payment_type = $data['payment_type'] ?? PaymentType::WALLET->value;
+            $payment_type = $data['payment_type'] ?? PaymentType::WALLET_DEPOSIT->value;
             unset($data['video'], $data['image'], $data['payment_type']);
 
             $adPrice = AdPrice::findOrFail($data['ad_price_id']);
@@ -147,12 +147,12 @@ class AdsRepository implements AdsRepositoryInterface
 
     public function getActiveAdsForFeed(int $limit = 3) // ?posts
     {
-        return $this->ads::where('feed_type', AdsFeedType::POSTS)->limit($limit)->get();
+        return $this->ads::where('feed_type', AdsFeedType::POSTS->value)->limit($limit)->get();
     }
 
     public function getAdsForReels(int $limit = 3)
     {
-        return $this->ads::where('feed_type', AdsFeedType::REELS)->limit($limit)->get();
+        return $this->ads::where('feed_type', AdsFeedType::REELS->value)->limit($limit)->get();
     }
 
     public function getAdsForBoth(int $limit = 3)

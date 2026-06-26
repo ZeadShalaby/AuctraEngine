@@ -2,14 +2,40 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Enums\AuctionStatus;
+use App\Enums\PaymentType;
 use App\Models\Bid;
+use App\Models\Wallet\Transaction;
 use App\Repositories\Interfaces\BidRepositoryInterface;
+use App\Services\Payments\WalletPayment;
 
 class BidRepository implements BidRepositoryInterface
 {
     public function __construct(
         protected Bid $bid
     ) {
+    }
+
+    public function completeAuctionPayment(int $auctionId)
+    {
+        $bid = $this->getUserHighestBid($auctionId, auth()->id());
+        if ($bid->user_id != $bid->auction->winner_id) {
+            throw new \Exception(__("messages.not_auction_winner"));
+        }
+        if ($bid->auction->status != AuctionStatus::ENDED->value) {
+            throw new \Exception(__("messages.auction_not_ended"));
+        }
+        checkOwner(auth()->id(), $bid->user_id);
+        $alreadyPaid = Transaction::where('source_type', Bid::class)
+            ->where('source_id', $bid->id)
+            ->where('type', PaymentType::AUCTION_WIN->value)
+            ->exists();
+
+        if ($alreadyPaid) {
+            throw new \Exception(__("messages.auction_already_paid"));
+        }
+        app(WalletPayment::class)->pay(auth()->user(), $bid, $bid->amount, PaymentType::AUCTION_WIN->value);
+        return $bid;
     }
 
     public function create(array $data)
@@ -34,7 +60,7 @@ class BidRepository implements BidRepositoryInterface
             ->first();
     }
 
-    public function getUserHighestBid(int $auctionId,int $userId)
+    public function getUserHighestBid(int $auctionId, int $userId)
     {
         return $this->bid
             ->where('auction_id', $auctionId)
@@ -58,5 +84,10 @@ class BidRepository implements BidRepositoryInterface
             ->where('is_auto', 1)
             ->where('max_auto_bid', '>', $currentPrice)
             ->get();
+    }
+
+    public function bidHistory()
+    {
+        return $this->bid->all();
     }
 }

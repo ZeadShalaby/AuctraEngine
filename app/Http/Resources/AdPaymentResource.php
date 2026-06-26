@@ -22,7 +22,7 @@ class AdPaymentResource extends JsonResource
         ]);
         return array_filter([
             'ad_id' => $this->payable_id ?? $this->source->id,
-            
+
             'ad_details' => $ad ? array_filter([
                 'title' => $ad->title,
                 'description' => $ad->description,
@@ -31,8 +31,13 @@ class AdPaymentResource extends JsonResource
                 'expires_at' => $ad->expires_at?->format('Y-m-d'),
                 'link' => $ad->link_url,
                 'feed_type' => $ad->feed_type,
-                'image' => $ad->image,
-                'video' => $ad->video,
+                'image' => $ad->getMedia('image')
+                    ->map(fn($media) => $media->getUrl())
+                    ->values(),
+
+                'video' => $ad->getMedia('video')
+                    ->map(fn($media) => $media->getUrl())
+                    ->values(),
             ], fn($value) => !is_null($value)) : null,
 
             'payment_status' => $this->status,

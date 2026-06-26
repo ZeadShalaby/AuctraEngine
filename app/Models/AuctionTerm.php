@@ -12,6 +12,8 @@ class AuctionTerm extends Model implements PayableInterface , HasTransactionSumm
 {
     use HasFactory;
 
+    protected $hidden = ['updated_at' ];
+
     public function auction()
     {
         return $this->belongsTo(Auction::class);

@@ -7,13 +7,13 @@ use App\Http\Requests\Posts\CreateRequest;
 use App\Http\Requests\Posts\UpdateRequest;
 use App\Http\Resources\PostResource;
 use App\Repositories\Eloquent\AdsRepository;
-use App\Repositories\Eloquent\PostsRepository;
+use App\Repositories\Interfaces\PostsRepositoryInterface;
 use App\Services\AdsRPService;
 
 class PostController extends Controller
 {
 
-    public function __construct(protected PostsRepository $posts, protected AdsRepository $adsRepository, protected AdsRPService $adsRPService){}
+    public function __construct(protected PostsRepositoryInterface $posts, protected AdsRepository $adsRepository, protected AdsRPService $adsRPService){}
 
     public function all($perPage = 10)
     {

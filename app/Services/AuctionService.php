@@ -15,13 +15,66 @@ class AuctionService
     public function __construct(
         protected AuctionRepositoryInterface $auctionRepository,
         protected BidRepositoryInterface $bidRepository,
-        protected Bid $model
+        protected Bid $model,
     ) {
     }
 
-    public function getAllAuctions()
+    private function processAutoBids(int $auctionId, int $lastUserId): void
     {
-        return $this->auctionRepository->all();
+        while (true) {
+
+            // ? todo lock
+            $auction = Auction::lockForUpdate()->find($auctionId);
+
+            $currentPrice = $auction->current_price ?? $auction->start_price;
+            // ? todo auto bids
+            $autoBids = $this->bidRepository
+                ->getActiveAutoBids($auctionId, $currentPrice)
+                ->where('user_id', '!=', $lastUserId)
+                ->sortByDesc('max_auto_bid');
+
+            if ($autoBids->isEmpty()) {
+                break;
+            }
+
+            $winner = $autoBids->first();
+
+            $nextBid = $currentPrice + $auction->min_bid_increment;
+            // ? todo check max reachor not
+            if ($nextBid > $winner->max_auto_bid) {
+                break;
+            }
+
+            // ?todo Auto Bid
+            $bid = $this->bidRepository->create([
+                'user_id' => $winner->user_id,
+                'auction_id' => $auctionId,
+                'amount' => $nextBid,
+                'is_auto' => true,
+                'max_auto_bid' => $winner->max_auto_bid,
+            ]);
+
+            // ?todo set winner
+            $this->auctionRepository->setWinner(
+                $auctionId,
+                $winner->user_id,
+                $nextBid
+            );
+
+            event(new BidPlaced($bid));
+            // ?todo notify
+            $lastUserId = $winner->user_id;
+        }
+    }
+
+    public function getAllAuctions(array $filters = [], int $perPage = 15)
+    {
+        return $this->auctionRepository->all($filters, $perPage);
+    }
+
+    public function myAuctions(array $filters = [], int $perPage = 15)
+    {
+        return $this->auctionRepository->my($filters, $perPage);
     }
 
     public function getAuction(int $id)
@@ -34,11 +87,21 @@ class AuctionService
         return $this->auctionRepository->create($data);
     }
 
-    public function endAuction(int $auctionId)
+    public function updateAuction(int $id, array $data)
     {
-        return $this->auctionRepository->endAuction($auctionId);
+        return $this->auctionRepository->update($id, $data);
     }
 
+    public function endAuction(int $auctionId)
+    {
+        $auction = Auction::where('id', $auctionId)->select('user_id')->first();
+        checkOwner(auth()->id(), $auction->user_id);
+        if (now()->gt($auction->end_at)) {
+            throw new \Exception(__('messages.auction_ended'));
+        }
+        return $this->auctionRepository->endAuction($auctionId);
+    }
+    //
     public function placeBid(int $auctionId, object $user, float $amount, ?float $maxAutoBid = null)
     {
         return DB::transaction(function () use ($auctionId, $user, $amount, $maxAutoBid) {
@@ -49,15 +112,15 @@ class AuctionService
                 ->first();
 
             if (!$auction || $auction->status !== 'active') {
-                throw new \Exception('Auction not active');
+                throw new \Exception(__('messages.auction_not_active'));
             }
 
             if (now()->gt($auction->end_at)) {
-                throw new \Exception('Auction ended');
+                throw new \Exception(__('messages.auction_ended'));
             }
 
             if ($auction->user_id == $user->id) {
-                throw new \Exception('Owner cannot bid');
+                throw new \Exception(__('messages.cannot_bid_own_auction'));
             }
 
             $currentPrice = $auction->current_price ?? $auction->start_price;
@@ -65,9 +128,11 @@ class AuctionService
             $min = $currentPrice + $auction->min_bid_increment;
 
             if ($amount < $min) {
-                throw new \Exception("Minimum bid is {$min}");
+                throw new \Exception(__("messages.min_bid_amount") . " : {$min}");
             }
-
+            if ($maxAutoBid < $amount) {
+                throw new \Exception(__("messages.max_auto_bid_amount") . " : {$amount}");
+            }
             $oldWinner = $auction->winner_id;
 
             // ? 1. create bid
@@ -100,51 +165,33 @@ class AuctionService
         });
     }
 
-    private function processAutoBids(int $auctionId, int $lastUserId)
+
+    public function buyTerms($auctionId)
     {
         $auction = Auction::find($auctionId);
+        checkAuctionStatus($auction);
+        checkWalletBalance(auth()->user(), $auction->terms_price);
+        return $this->auctionRepository->buyTerms($auction->id, auth()->id());
+    }
 
-        $autoBids = $this->bidRepository->getActiveAutoBids($auctionId, $auction->current_price);
+    public function completeAuctionPayment($auctionId)
+    {
+        return $this->bidRepository->completeAuctionPayment($auctionId)->load('auction','auction.winner');
+    }
 
-        if ($autoBids->isEmpty()) {
-            return;
-        }
 
-        // ? remove last bidder
-        $autoBids = $autoBids->where('user_id', '!=', $lastUserId);
+    public function deleteAuction(int $id)
+    {
+        return $this->auctionRepository->deleteAuction($id);
+    }
 
-        if ($autoBids->isEmpty()) {
-            return;
-        }
+    public function bidHistory()
+    {
+        return $this->bidRepository->bidHistory();
+    }
 
-        // ? highest max wins priority
-        $autoBids = $autoBids->sortByDesc('max_auto_bid');
-
-        foreach ($autoBids as $autoBid) {
-
-            $next = $auction->current_price + $auction->min_bid_increment;
-
-            if ($next > $autoBid->max_auto_bid) {
-                continue;
-            }
-
-            $bid = $this->bidRepository->create([
-                'user_id' => $autoBid->user_id,
-                'auction_id' => $auctionId,
-                'amount' => $next,
-                'is_auto' => 1,
-                'max_auto_bid' => $autoBid->max_auto_bid
-            ]);
-
-            $this->auctionRepository->setWinner(
-                $auctionId,
-                $autoBid->user_id,
-                $next
-            );
-
-            event(new BidPlaced($bid));
-
-            break;
-        }
+    public function myAuctionWinner()
+    {
+        return $this->auctionRepository->myAuctionWinner();
     }
 }

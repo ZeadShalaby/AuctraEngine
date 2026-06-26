@@ -25,8 +25,10 @@ class CreateRequest extends FormRequest
             //
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'video' => 'nullable|file|mimetypes:video/mp4,video/quicktime,video/x-msvideo|max:20480',
+            'video' => ['required_without:image', 'array', 'max:3'],
+            'video.*' => ['file', 'mimetypes:video/mp4,video/quicktime,video/x-m4v,video/*', 'max:20480'],
+            'image' => ['required_without:video', 'array', 'max:3'],
+            'image.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 }

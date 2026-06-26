@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Events\AuctionOutBidded;
 use App\Events\BidPlaced;
 use App\Events\InteractionToggled;
+use App\Events\ViewEvent;
 use App\Listeners\HandleBidPlaced;
 use App\Listeners\SendOutBidNotification;
 use App\Listeners\UpdateInteractionCountListener;
+use App\Listeners\ViewListeners;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -32,6 +34,9 @@ class EventServiceProvider extends ServiceProvider
         BidPlaced::class => [
             HandleBidPlaced::class,
         ],
+        ViewEvent::class => [
+            ViewListeners::class
+        ]
     ];
 
     /**

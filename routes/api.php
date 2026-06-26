@@ -174,42 +174,53 @@ Route::group(['middleware' => ['jwt.auth:api', 'verified.custom', 'setLocale', '
 
 // ?todo auction
 Route::prefix('auctions')->group(function () {
-    //? public
-    Route::get('/all', [AuctionController::class, 'allAuctions']);
-    Route::get('/search', [AuctionController::class, 'searchAuctions']);
-    Route::get('/{id}', [AuctionController::class, 'showAuction']);
-    Route::get('/active', [AuctionController::class, 'activeAuctions']);
-    Route::get('/upcoming', [AuctionController::class, 'upcomingAuctions']);
-    Route::get('/ended', [AuctionController::class, 'endedAuctions']);
+    //? auth , verified required
+    Route::middleware(['jwt.auth:api', 'verified.custom'])->group(function () {
 
-    //? auth required
-    Route::middleware('jwt.auth:api')->group(function () {
+        // ?todo auctions
+        Route::get('/all', [AuctionController::class, 'index']);
+        Route::get('/my', [AuctionController::class, 'myAuctions']);
+        Route::get('/{id}', [AuctionController::class, 'show'])->name('auctions.show');
+        Route::post('/create', [AuctionController::class, 'create']);
+        Route::post('/update/{id}', [AuctionController::class, 'update']);
+        Route::delete('/delete/{id}', [AuctionController::class, 'destroy']);
+        Route::get('/ended/{id}', [AuctionController::class, 'endedAuctions']);
+        Route::get('/my', [AuctionController::class, 'myAuctions']);
+        //?todo winner
+        Route::get('/bids/winner-my', [AuctionController::class, 'myAuctionWinner']);
+        // ?todo packages
+        Route::prefix('packages')->group(function () {
+            Route::get('/all', [PromotionPackageController::class, 'index']);
+            Route::get('/{id}', [PromotionPackageController::class, 'show']);
+        });
 
-        Route::get('/watchlist', [AuctionController::class, 'userWatchlist']);
-        Route::post('/watchlist/add', [AuctionController::class, 'addToWatchlist']);
+        // ?todo promotions
+        Route::prefix('promotions')->group(function () {
+            Route::get('/all', [AuctionPromotionController::class, 'allPromotions']);
+            Route::get('/my', [AuctionPromotionController::class, 'myPromotions']);
+            Route::post('/subscription', [AuctionPromotionController::class, 'buyPackage']);
+        });
 
-        Route::get('/bid-history/{auctionId}', [AuctionController::class, 'bidHistory']);
-        Route::get('/highest-bid/{auctionId}', [AuctionController::class, 'highestBid']);
+        // ?todo terms
+        Route::prefix('terms')->group(function () {
+            Route::post('/buy/{id}', [AuctionController::class, 'buyTerms']);
+        });
 
-        //? verified required
-        Route::middleware('verified.custom')->group(function () {
-            Route::prefix('promotions')->group(function () {
+        // ?todo bids
+        Route::prefix('bids')->middleware('auction.terms.purchased')->group(function () {
+            Route::post('/place/{id}', [AuctionController::class, 'placeBid'])->name('bids.place');
+            Route::post('/complete/winner-payment/{id}', [AuctionController::class, 'completeAuctionPayment']);
+            Route::get('/history/{auctionId}', [AuctionController::class, 'bidHistory']);
+            Route::get('/highest/{auctionId}', [AuctionController::class, 'highestBid']);
+        });
 
-            });
-            Route::prefix('packages')->group(function () {
-                Route::get('/all', [PromotionPackageController::class, 'index']);
-                Route::get('/{id}', [PromotionPackageController::class, 'show']);
-            });
-            Route::prefix('promotions')->group(function () {
-                Route::get('/my', [AuctionPromotionController::class, 'index']);
-                Route::post('/subscription', [AuctionPromotionController::class, 'buyPackage']);
-            });
-            Route::prefix('bids')->group(function () {
-                Route::post('/place', [AuctionController::class, 'placeBid']);
-            });
+        // ?todo watchlist
+        Route::prefix('watchlist')->group(function () {
+            Route::get('/{id}', [AuctionController::class, 'userWatchlist']);
         });
     });
 });
+
 
 // ?todo Ads
 Route::prefix('ads')->middleware('jwt.auth:api')->group(function () {
@@ -234,6 +245,7 @@ Route::prefix('payments')->middleware(['jwt.auth:api', 'verified.custom'])->grou
     });
 
 });
+
 Route::post('/payment/create', [PaymentController::class, 'create']);
 Route::post('/pay/{ref}', [PaymentController::class, 'showPaymentPage']);
 // ? callback URL that Moamalat will call after payment

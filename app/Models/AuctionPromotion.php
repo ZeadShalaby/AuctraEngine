@@ -11,6 +11,7 @@ class AuctionPromotion extends Model
 {
     use HasFactory;
 
+    protected $hidden = [ 'updated_at'];
     protected $casts = [
         'starts_at' => 'datetime',
         'expires_at' => 'datetime',
@@ -20,6 +21,7 @@ class AuctionPromotion extends Model
     {
         return $this->belongsTo(Auction::class);
     }
+
 
     public function getPayloadAttribute()
     {

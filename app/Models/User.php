@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AuctionStatus;
+use App\Models\Auction;
 use App\Models\Comment;
 use App\Models\Favourite;
 use App\Models\Interest;
@@ -22,7 +24,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Yajra\DataTables\Html\Editor\Fields\Hidden;
-use App\Enums\AuctionStatus;
 
 class User extends Authenticatable implements MustVerifyEmail, HasMedia, JWTSubject
 {
@@ -192,6 +193,11 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia, JWTSubj
     {
         return $this->hasMany(Auction::class, 'user_id')
             ->where('status', AuctionStatus::ENDED->value);
+    }
+
+    public function auctions()
+    {
+       return $this->hasMany(Auction::class, 'user_id');        
     }
 
     public function likedReels()

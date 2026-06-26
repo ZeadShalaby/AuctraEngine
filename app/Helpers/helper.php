@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AdsStatus;
+use App\Enums\AuctionStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\PromotionStatus;
@@ -319,13 +320,33 @@ if (!function_exists('imageDefault')) {
     }
 }
 
+// if (!function_exists('addMediaIfExists')) {
+//     function addMediaIfExists($model, $data, $key)
+//     {
+
+//         if (!empty($data[$key])) {
+//             $model->clearMediaCollection($key); // ? Clear existing media in the collection before adding new one
+//             $model->addMedia($data[$key])
+//                 ->toMediaCollection($key);
+//         }
+//     }
+// }
+
+use Illuminate\Support\Arr;
+
 if (!function_exists('addMediaIfExists')) {
     function addMediaIfExists($model, $data, $key)
     {
+        $files = Arr::wrap($data[$key] ?? []);
 
-        if (!empty($data[$key])) {
-            $model->clearMediaCollection($key); // ? Clear existing media in the collection before adding new one
-            $model->addMedia($data[$key])
+        if (empty($files)) {
+            return;
+        }
+
+        $model->clearMediaCollection($key); // ? Clear existing media in the collection before adding new one
+
+        foreach ($files as $file) {
+            $model->addMedia($file)
                 ->toMediaCollection($key);
         }
     }
@@ -644,7 +665,7 @@ if (!function_exists('completeCallback')) {
 if (!function_exists('checkWalletBalance')) {
     function checkWalletBalance($user, $price)
     {
-        $wallet = $user->balance;
+        $wallet = Wallet::where('user_id', $user->id)->lockForUpdate()->first();
         if (!$wallet) {
             throw new \Exception(__("messages.wallet_not_found"));
         }
@@ -687,14 +708,60 @@ if (!function_exists('incrementWallet')) {
 }
 
 if (!function_exists('decrementWallet')) {
-    function decrementWallet($user, $amount)
-    {
-        $wallet = Wallet::where('user_id', $user->id)->first();
-        $wallet->decrement('balance', $amount);
+    function decrementWallet(
+        $user,
+        $amount,
+        $description = 'Wallet Withdraw'
+    ) {
+        $wallet = Wallet::where('user_id', $user->id)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$wallet) {
+            throw new \Exception('Wallet not found');
+        }
+
+        $oldBalance = $wallet->balance;
+        $oldReserved = $wallet->reserved_balance;
+
+        $wallet->balance -= $amount;
         $wallet->save();
+
+        WalletLog::create([
+            'wallet_id' => $wallet->id,
+            'amount' => $amount,
+            'type' => PaymentType::WALLET_WITHDRAW->value,
+            'balance_before' => $oldBalance,
+            'balance_after' => $wallet->balance,
+            'reserved_before' => $oldReserved,
+            'reserved_after' => $wallet->reserved_balance,
+            'reference' => PaymentType::WALLET_WITHDRAW->value,
+            'description' => $description,
+        ]);
     }
 }
 
+if (!function_exists('checkAuctionStatus')) {
+    function checkAuctionStatus($auction)
+    {
+        if ($auction->status !== AuctionStatus::ACTIVE->value) {
+            throw new \Exception(__("messages.auction_not_active"));
+        }
+
+        if ($auction->start_at->isFuture()) {
+            throw new \Exception(__("messages.auction_not_started"));
+        }
+
+        if ($auction->end_at->isPast()) {
+            throw new \Exception(__("messages.auction_ended"));
+        }
+
+        if ($auction->status === AuctionStatus::CANCELLED->value) {
+            throw new \Exception(__("messages.auction_cancelled"));
+        }
+        return true;
+    }
+}
 
 
 if (!function_exists('checkOwner')) {

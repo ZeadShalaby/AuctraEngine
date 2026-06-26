@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\AssignGuard;
+use App\Http\Middleware\EnsureAuctionTermsPurchased;
 use App\Http\Middleware\EnsureUserIsVerified;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -68,5 +69,6 @@ class Kernel extends HttpKernel
         'jwt.auth.guard' => AssignGuard::class,
         'setLocale' => SetLocale::class,
         'verified.custom' => EnsureUserIsVerified::class,
+        'auction.terms.purchased' => EnsureAuctionTermsPurchased::class
     ];
 }

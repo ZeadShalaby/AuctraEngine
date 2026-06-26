@@ -64,9 +64,18 @@ class AuctionPromotionRepository implements AuctionPromotionRepositoryInterface
                 'source_type' => get_class($promotion)
             ]);
     }
+
+    
     public function my($type, $perPage = 10)
     {
-        return $this->auctionPromotion->where('user_id', auth()->user()->id)->where('status', $type)->paginate($perPage);
+        $auctionIds = auth()->user()
+            ->auctions()
+            ->pluck('id');
+
+        return $this->auctionPromotion
+            ->whereIn('auction_id', $auctionIds)
+            ->where('status', $type)
+            ->paginate($perPage);
     }
 
     public function subcription(int $id, $auctionId, $type = null)
@@ -79,8 +88,16 @@ class AuctionPromotionRepository implements AuctionPromotionRepositoryInterface
         });
     }
 
+    public function allPromotions($type, $perPage = 10)
+    {
+        return $this->auctionPromotion::with('package', 'auction')
+            ->whereHas('package', function ($q) use ($type) {
+                $q->where('type', $type);
+            })
+            ->paginate($perPage);
+    }
     // !admin
-    public function all($perPage = 10)
+    public function all($type = null, $perPage = 10)
     {
         return $this->auctionPromotion->all()->paginate($perPage);
     }

@@ -26,6 +26,7 @@ class Auction extends Model implements HasMedia, PayableInterface
     use HasFactory, LogsActivity, InteractsWithMedia;
 
     protected $casts = ['start_at' => 'datetime', 'end_at' => 'datetime'];
+    protected $hidden = ['updated_at'];
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -46,6 +47,11 @@ class Auction extends Model implements HasMedia, PayableInterface
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function winner()
+    {
+        return $this->belongsTo(User::class, 'winner_id');
     }
 
     public function bids()
@@ -104,13 +110,17 @@ class Auction extends Model implements HasMedia, PayableInterface
     //******** 
     // ?media
     //********
-    public function getImageAttribute()
+    public function getImagesAttribute()
     {
-        return $this->getFirstMediaUrl('images');
+        return $this->getMedia('images')
+            ->map(fn($media) => $media->getUrl())
+            ->toArray();
     }
 
-    public function getVideoAttribute()
+    public function getVideosAttribute()
     {
-        return $this->getFirstMediaUrl('videos');
+        return $this->getMedia('videos')
+            ->map(fn($media) => $media->getUrl())
+            ->toArray();
     }
 }

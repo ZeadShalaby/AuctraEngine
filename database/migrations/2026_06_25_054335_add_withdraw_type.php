@@ -10,13 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('merchant_ref')->unique();
-            $table->decimal('amount', 10, 2);
-            $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
-            $table->enum('payment_gateway', ['moamalat', 'paypal', 'stripe', 'other']);
+        Schema::table('payments', function (Blueprint $table) {
             $table->enum('type', [
                 'withdraw',
                 'deposit', // رايح يشحن محفظته بفلوس من بره
@@ -25,12 +19,7 @@ return new class extends Migration {
                 'ad_fee',      // رايح يدفع ثمن الإعلان بالفيزا علطول
                 'other',
                 'auction_promotion'
-            ]);
-
-            $table->nullableMorphs('payable');
-
-            $table->json('details')->nullable();
-            $table->timestamps();
+            ])->change();
         });
     }
 
@@ -39,6 +28,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('payments');
+        Schema::table('payments', function (Blueprint $table) {
+            $table->enum('type', [
+                'withdraw',
+            ])->change();
+        });
     }
 };

@@ -17,7 +17,9 @@ use App\Services\AuthService;
 
 class AuthController extends Controller
 {
-    public function __construct(protected AuthService $authService) {}
+    public function __construct(protected AuthService $authService)
+    {
+    }
 
     public function register(RegisterRequest $request)
     {
@@ -40,7 +42,7 @@ class AuthController extends Controller
     }
 
     public function resendOtp(ResendRequest $request)
-    { 
+    {
         return $this->authService->resendOtp($request->user_id);
     }
 
@@ -55,7 +57,7 @@ class AuthController extends Controller
     }
 
     public function me()
-    { 
+    {
         return $this->authService->me();
     }
 
@@ -75,7 +77,7 @@ class AuthController extends Controller
     }
 
     public function updateProfile(UpdateRequest $request)
-    { 
+    {
         return $this->authService->updateProfile($request->validated());
     }
 
@@ -89,8 +91,8 @@ class AuthController extends Controller
         return $this->authService->logout();
     }
 
-    // public function refreshToken()
-    // {
-    //     return $this->authService->refreshToken();
-    // }
+    public function refreshToken()
+    {
+        return successResponse(__('pages.success.auth.token_refreshed'), ['token' => $this->authService->refreshToken()], 200);
+    }
 }

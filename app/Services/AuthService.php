@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Http\Resources\UserResource;
 use App\Mail\OtpMail;
 use App\Models\User;
-use App\Repositories\Eloquent\AuthRepository;
 use App\Repositories\Interfaces\AuthRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -294,6 +293,12 @@ class AuthService
             ->withAvg('reviews', 'rating')
             ->findOrFail($id);
         return successResponse(__('pages.success.auth.user_retrieved'), UserResource::make($user), 200);
+    }
+    
+    public function refreshToken()
+    {
+        $token = Auth::guard('api')->refresh();
+        return $token;
     }
     public function logout()
     {

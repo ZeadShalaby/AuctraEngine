@@ -9,5 +9,6 @@ enum PaymentType: string {
     case AUCTION_WIN = 'auction_win';
     case WALLET_DEPOSIT = 'deposit';
     case WALLET_WITHDRAW = 'withdraw';
+    case AuctionTermsRefund = 'auction_terms_refund';
 
 }

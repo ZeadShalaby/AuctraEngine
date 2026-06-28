@@ -19,6 +19,7 @@ return new class extends Migration {
                 'ad_fee',      // رايح يدفع ثمن الإعلان بالفيزا علطول
                 'other',
                 'auction_promotion',
+                'auction_terms_refund'
             ])->change();
         });
     }
@@ -30,7 +31,7 @@ return new class extends Migration {
     {
         Schema::table('payments', function (Blueprint $table) {
             $table->enum('type', [
-                'withdraw',
+                'auction_terms_refund',
             ])->change();
         });
     }

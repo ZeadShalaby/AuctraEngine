@@ -69,6 +69,8 @@ class Auction extends Model implements HasMedia, PayableInterface
         return $this->belongsTo(SubCategory::class);
     }
 
+    
+
     public function reviews()
     {
         return $this->hasMany(Review::class);

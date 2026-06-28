@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasTransactionSummary;
 use App\Contracts\PayableInterface;
 use App\Enums\PaymentType;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -44,6 +45,16 @@ class AuctionTerm extends Model implements PayableInterface , HasTransactionSumm
             'auction_id' => $this->auction_id,
             'auction_title' => $this->auction->title
         ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function auctions()
+    {
+        return $this->belongsToMany(Auction::class);
     }
 
     /* =======================

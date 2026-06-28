@@ -21,6 +21,7 @@ class AdPriceRepository implements AdPriceRepositoryInterface
         return $this->adprice::findOrFail($id);
     }
 
+
     public function create(array $data)
     {
         return $this->adprice::create($data);

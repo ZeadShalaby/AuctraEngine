@@ -7,6 +7,7 @@ use App\Enums\PaymentType;
 use App\Models\Bid;
 use App\Models\Wallet\Transaction;
 use App\Repositories\Interfaces\BidRepositoryInterface;
+use App\Services\AuctionTermsRefundService;
 use App\Services\Payments\WalletPayment;
 
 class BidRepository implements BidRepositoryInterface
@@ -34,7 +35,10 @@ class BidRepository implements BidRepositoryInterface
         if ($alreadyPaid) {
             throw new \Exception(__("messages.auction_already_paid"));
         }
-        app(WalletPayment::class)->pay(auth()->user(), $bid, $bid->amount, PaymentType::AUCTION_WIN->value);
+        $bidAmount = $bid->amount - $bid->auction->terms_price;
+        app(WalletPayment::class)->pay(auth()->user(), $bid, $bidAmount, PaymentType::AUCTION_WIN->value);
+        app(AuctionTermsRefundService::class)->refund($bid->auction);
+
         return $bid;
     }
 

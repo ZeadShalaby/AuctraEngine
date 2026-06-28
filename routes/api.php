@@ -52,7 +52,7 @@ Route::group(['prefix' => 'auth', 'middleware' => ['setLocale', 'throttle:api']]
         Route::get('/me', [AuthController::class, 'me']);
         Route::get('/user-profile/{id}', [AuthController::class, 'userProfile']);
         Route::post('/complete-profile', [AuthController::class, 'completeProfile']);
-        // Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+        Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
         Route::put('/change-password', [AuthController::class, 'changePassword']);
         Route::post('/change-avatar', [AuthController::class, 'changeAvatar']);
         Route::put('/update-profile', [AuthController::class, 'updateProfile']);
@@ -105,8 +105,6 @@ Route::group(['middleware' => ['jwt.auth:api', 'verified.custom', 'setLocale', '
     });
     // ?todo reviews
     Route::prefix('reviews')->group(function () {
-        // Route::get('/seller/avg/rating/{id}', [ReviewsController::class, 'sellerAverageRating']);
-        // Route::get('/seller/reviews/count/{id}', [ReviewsController::class, 'sellerReviewsCount']);
         Route::post('/seller/{id}', [ReviewsController::class, 'sellerReviews']);
         Route::post('/reviewer', [ReviewsController::class, 'reviewerReviews']);
         Route::get('/{id}', [ReviewsController::class, 'show']);
@@ -235,7 +233,7 @@ Route::prefix('ads')->middleware('jwt.auth:api')->group(function () {
         Route::get('/{id}', [AdPriceController::class, 'show']);
     });
 });
-
+// ?todo payments
 Route::prefix('payments')->middleware(['jwt.auth:api', 'verified.custom'])->group(function () {
     Route::post('/callback', [PaymentController::class, 'callback'])->name('payments.callback');
     Route::prefix('wallet')->group(function () {

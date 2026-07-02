@@ -9,17 +9,17 @@ use App\Repositories\Interfaces\SubCategoryRepositoryInterface;
 
 class SubCategoryRepository implements SubCategoryRepositoryInterface
 {
-    public function __construct(protected SubCategory $subCategory){}
+    public function __construct(protected SubCategory $subCategory)
+    {
+    }
 
 
     public function all($perPage = 10, $category_id = null)
     {
         $query = $this->subCategory::with('category:id,name_ar,name_en');
-
-        if ($category_id !== null) {
+        $query->when($category_id, function ($query) use ($category_id) {
             $query->where('category_id', $category_id);
-        }
-
+        });
         return $query->paginate($perPage);
     }
 

@@ -14,11 +14,11 @@ class CategoriesController extends Controller
 
     public function index(Request $request)
     {
-        return $this->categoryRepository->all($request->integer('paginate', 10));
+        return successResponse(__("messages.success"), $this->categoryRepository->all($request->integer('paginate', 10)));
     }
 
     public function show(int $id)
     {
-        return $this->categoryRepository->find($id);
+        return successResponse(__("messages.success"), $this->categoryRepository->find($id));
     }
 }

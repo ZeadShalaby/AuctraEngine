@@ -3,7 +3,7 @@ namespace App\Repositories\Interfaces;
 
 interface SubCategoryRepositoryInterface {
 
-    public function all($perPage = 10);
+    public function all($perPage = 10, $category_id = null);
 
     public function find(int $id);
 

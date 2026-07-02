@@ -16,25 +16,10 @@ class UsersDataTable extends DataTable
         return datatables()
             ->eloquent($query)
 
-            // /* =========================
-            //  * Country
-            //  * ========================= */
-            // ->editColumn('userProfile.country', function ($user) {
-            //     return $user->userProfile->country ?? '-';
-            // })
-
-            // /* =========================
-            //  * Company
-            //  * ========================= */
-            // ->editColumn('userProfile.company_name', function ($user) {
-            //     return $user->userProfile->company_name ?? '-';
-            // })
-
             ->editColumn('phone_number', function ($user) {
 
                 $phoneRaw = $user->phone_number;
 
-                // تنظيف الرقم
                 $phone = preg_replace('/[^0-9]/', '', $phoneRaw);
 
                 $waUrl = "https://wa.me/{$phone}";
@@ -227,9 +212,15 @@ class UsersDataTable extends DataTable
      */
     public function query()
     {
-        return User::query()
+
+        $users = User::query()
             ->whereNotIn('user_type', ['admin', 'demo_admin'])
             ->with('userProfile');
+
+        return filterByDateRange(
+            $users,
+            'created_at'
+        );
     }
 
     /**
@@ -241,6 +232,7 @@ class UsersDataTable extends DataTable
             ->setTableId('users-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
+            ->orderBy(0, 'desc')
             ->parameters([
                 "processing" => true,
                 "autoWidth" => false,
@@ -250,79 +242,70 @@ class UsersDataTable extends DataTable
     /**
      * Columns
      */
-    protected function getColumns()
+    protected function getColumns(): array
     {
         return [
 
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID'],
+            Column::make('id')
+                ->title('ID'),
 
-            [
-                'data' => 'full_name',
-                'name' => 'full_name',
-                'title' => 'Full Name',
-                'orderable' => false
-            ],
+            Column::make('full_name')
+                ->title('Full Name')
+                ->orderable(false),
 
-            ['data' => 'phone_number', 'name' => 'phone_number', 'title' => 'Phone'],
-            ['data' => 'email', 'name' => 'email', 'title' => 'Email'],
+            Column::make('phone_number')
+                ->title('Phone'),
 
-            // [
-            //     'data' => 'userProfile.country',
-            //     'name' => 'userProfile.country',
-            //     'title' => 'Country'
-            // ],
+            Column::make('email')
+                ->title('Email'),
 
-            // ['data' => 'userProfile.company_name', 'name' => 'userProfile.company_name', 'title' => 'Company'],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'Join Date'],
-            [
-                'data' => 'status_switch',
-                'name' => 'status',
-                'title' => 'Change Status',
-                'orderable' => false,
-                'searchable' => false
-            ],
+            Column::make('created_at')
+                ->title('Join Date'),
 
-            [
-                'data' => 'notifications',
-                'name' => 'notifications_enabled',
-                'title' => 'Notifications',
-                'orderable' => false,
-                'searchable' => false
-            ],
+            Column::make('status')
+                ->data('status_switch')
+                ->title('Change Status'),
 
-            [
-                'data' => 'email_toggle',
-                'name' => 'email_enabled',
-                'title' => 'Email',
-                'orderable' => false,
-                'searchable' => false
-            ],
+            Column::make('notifications_enabled')
+                ->data('notifications')
+                ->title('Notifications')
+                ->orderable(false)
+                ->searchable(false),
 
-            [
-                'data' => 'ads_enabled',
-                'name' => 'ads_enabled',
-                'title' => 'Ads',
-                'orderable' => false,
-                'searchable' => false
-            ],
+            Column::make('email_enabled')
+                ->data('email_toggle')
+                ->title('Email')
+                ->orderable(false)
+                ->searchable(false),
 
-            [
-                'data' => 'auction_enabled',
-                'name' => 'auction_enabled',
-                'title' => 'Auction',
-                'orderable' => false,
-                'searchable' => false
-            ],
+            Column::make('ads_enabled')
+                ->title('Ads')
+                ->orderable(false)
+                ->searchable(false),
 
-
-
+            Column::make('auction_enabled')
+                ->title('Auction')
+                ->orderable(false)
+                ->searchable(false),
 
             Column::computed('action')
+                ->title('Action')
                 ->exportable(false)
                 ->printable(false)
                 ->searchable(false)
+                ->orderable(false)
                 ->width(80)
                 ->addClass('text-center'),
         ];
+    }
+
+    /**
+     * Get filename for export.
+     *
+     * @return string
+     */
+    protected function filename(): string
+    {
+        return 'Users_' . date('YmdHis');
     }
 }

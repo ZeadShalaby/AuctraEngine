@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Dashboard\DashboardAnalyticsService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -9,12 +10,14 @@ class HomeController extends Controller
     /*
      * Dashboard Pages Routs
      */
-    public function index(Request $request)
+    public function index(Request $request, DashboardAnalyticsService $dashboard)
     {
         $assets = ['chart', 'animation'];
-        return view('dashboards.dashboard', compact('assets'));
-    }
 
+        $data = $dashboard->dashboard();
+        $chartData = $dashboard->chartData();
+        return view('dashboards.dashboard', compact('assets', 'data', 'chartData'));
+    }
 
     /*
      * Widget Routs
@@ -111,7 +114,7 @@ class HomeController extends Controller
         return view('settings.validation');
     }
 
-     /*
+    /*
      * Table Page Routs
      */
     public function bootstraptable(Request $request)
@@ -140,8 +143,8 @@ class HomeController extends Controller
 
 
     /*
-    * Landing Page Routs
-    */
+     * Landing Page Routs
+     */
     public function landing_index(Request $request)
     {
         return view('landing-pages.pages.index');

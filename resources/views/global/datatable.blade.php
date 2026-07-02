@@ -15,6 +15,7 @@
                         </div>
                     </div>
                     <div class="card-body px-0">
+                        <x-datatable-date-filter />
                         <div class="table-responsive">
                             {{ $dataTable->table(['class' => 'table text-center table-striped w-100'], true) }}
                         </div>

@@ -44,7 +44,6 @@ class NotificationsController extends Controller
 
     public function markAsRead($notification_id, NotificationService $service)
     {
-        dd($notification_id);
         $service->markAsRead(auth()->user(),$notification_id);
         return successResponse(__('messages.success'), [], 200);
     }

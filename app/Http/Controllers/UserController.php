@@ -6,6 +6,7 @@ use App\DataTables\UsersDataTable;
 use App\Helpers\AuthHelper;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Models\Wallet\Transaction;
 use App\Services\UserToggleService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;

@@ -7,8 +7,8 @@ use App\Enums\PaymentType;
 use App\Enums\PromotionStatus;
 use App\Enums\UserType;
 use App\Events\InteractionToggled;
-use App\Models\Card;
-use App\Models\Category;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\Interest;
 use App\Models\RechargeCard;
 use App\Models\Setting;
@@ -796,3 +796,53 @@ if (!function_exists('checkAvailableCard')) {
 
 
 
+if (!function_exists('actionColumn')) {
+    function actionColumn($row, string $resource, array $actions = ['show', 'edit', 'delete'])
+    {
+        return view('components.datatable-actions', [
+            'resource' => $resource,
+            'id' => $row->id,
+            'actions' => $actions,
+        ]);
+    }
+}
+
+if (!function_exists('filterByDateRange')) {
+
+    if (!function_exists('filterByDateRange')) {
+
+        function filterByDateRange(
+            Builder $query,
+            string|array $columns = 'created_at'
+        ): Builder {
+
+            $from = request('from_date');
+            $to = request('to_date');
+
+            if (is_string($columns)) {
+
+                if ($from) {
+                    $query->where($columns, '>=', Carbon::parse($from)->startOfDay());
+                }
+
+                if ($to) {
+                    $query->where($columns, '<=', Carbon::parse($to)->endOfDay());
+                }
+
+                return $query;
+            }
+
+            [$startColumn, $endColumn] = $columns;
+
+            if ($from) {
+                $query->where($startColumn, '>=', Carbon::parse($from)->startOfDay());
+            }
+
+            if ($to) {
+                $query->where($endColumn, '<=', Carbon::parse($to)->endOfDay());
+            }
+
+            return $query;
+        }
+    }
+}

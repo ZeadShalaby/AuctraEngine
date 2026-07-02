@@ -14,7 +14,7 @@ class SubCategoriesController extends Controller
 
     public function index(Request $request)
     {
-        return $this->subCategoryRepository->all($request->integer('paginate', 10));
+        return $this->subCategoryRepository->all($request->integer('paginate', 10), $request->integer('category_id'));
     }
 
     public function show(int $id)

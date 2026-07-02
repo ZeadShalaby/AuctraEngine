@@ -12,9 +12,15 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
     public function __construct(protected SubCategory $subCategory){}
 
 
-    public function all($perPage = 10)
+    public function all($perPage = 10, $category_id = null)
     {
-        return $this->subCategory::with('category:id,name_ar,name_en')->paginate($perPage);
+        $query = $this->subCategory::with('category:id,name_ar,name_en');
+
+        if ($category_id !== null) {
+            $query->where('category_id', $category_id);
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function find(int $id)
